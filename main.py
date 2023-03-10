@@ -83,7 +83,7 @@ logged_in_user_level = None
 #     conn = None
 #     try:
 #         conn = psycopg2.connect(
-#             "dbname=postgres user=postgres password=Soumil008")
+#             "dbname=postgres user=postgres password=")
 #         cur = conn.cursor()
 #         for command in commands:
 #             cur.execute(command)
