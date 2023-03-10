@@ -97,7 +97,7 @@ logged_in_user_level = None
 
 
 # Establish a connection to the database
-conn = psycopg2.connect("dbname=postgres user=postgres password=")
+conn = psycopg2.connect("dbname=postgres user=postgres password=Soumil008")
 
 # Create a cursor object to interact with the database
 cur = conn.cursor()
