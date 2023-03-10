@@ -1,69 +1,170 @@
-import psycopg2
 import re
-conn = psycopg2.connect("dbname=postgres user=postgres password=passwordhere")
+import psycopg2
+
+# Global variables to store the logged-in user ID and their access level
+logged_in_user = None
+logged_in_user_level = None
+
+
+# def create_tables():
+#     commands = [
+#         """
+#         CREATE TABLE Users(
+#             User_ID serial PRIMARY KEY,
+#             Username varchar(20) NOT NULL,
+#             Password varchar(20) NOT NULL,
+#             Level int NOT NULL
+#         )
+#         """,
+#         """
+#         CREATE TABLE Locations(
+#             Location_ID serial PRIMARY KEY,
+#             Address varchar(255) UNIQUE NOT NULL
+#         )
+#         """,
+#         """
+#         CREATE TABLE Stock(
+#             VIN char(17) PRIMARY KEY,
+#             Make varchar(255),
+#             Color varchar(255),
+#             Model varchar(255),
+#             Year int,
+#             Starting_Price money,
+#             Is_Sold boolean
+#         )
+#         """,
+#         """
+#         CREATE TABLE Roles(
+#             Role_ID serial PRIMARY KEY,
+#             Description varchar(255)
+#         )
+#         """,
+#         """
+#         CREATE TABLE Employees(
+#             Employee_ID serial PRIMARY KEY,
+#             User_ID int REFERENCES Users,
+#             Birthdate date,
+#             Salary money,
+#             First_Name varchar(255),
+#             Last_Name varchar(255),
+#             Address varchar(255),
+#             Role_ID int REFERENCES Roles ON DELETE SET NULL
+#         )
+#         """,
+#         """
+#         CREATE TABLE Service_History(
+#             VIN char(17) REFERENCES Stock ON DELETE CASCADE,
+#             Mechanic int REFERENCES Employees ON DELETE SET NULL
+#         )
+#         """,
+#         """
+#         CREATE TABLE Customers(
+#             Customer_ID serial PRIMARY KEY,
+#             User_ID int REFERENCES Users,
+#             First_Name varchar(255),
+#             Last_Name varchar(255),
+#             Phone_Number char(12)
+#         )
+#         """,
+#         """
+#         CREATE TABLE Sales(
+#             VIN char(17) PRIMARY KEY REFERENCES Stock,
+#             Customer_ID int REFERENCES CUSTOMERS,
+#             Selling_Price money,
+#             Dealer int REFERENCES Employees,
+#             Location int REFERENCES Locations
+#         )
+#         """,
+#         """
+#         INSERT INTO Roles(Role_ID,Description)
+#         VALUES(0,'Admin'),(1,'Dealer'),(2,'Engineer')
+#         """
+#     ]
+#     conn = None
+#     try:
+#         conn = psycopg2.connect(
+#             "dbname=postgres user=postgres password=Soumil008")
+#         cur = conn.cursor()
+#         for command in commands:
+#             cur.execute(command)
+#         cur.close()
+#         conn.commit()
+#     except (Exception, psycopg2.DatabaseError) as error:
+#         print(error)
+#     finally:
+#         if conn is not None:
+#             conn.close()
+
+
+# Establish a connection to the database
+conn = psycopg2.connect("dbname=postgres user=postgres password=Soumil008")
+
+# Create a cursor object to interact with the database
 cur = conn.cursor()
 
 
-def addCar(vin, make, color, model, year, starting_price, is_sold):
-    cur.execute("""
-        INSERT INTO stock (vin, make, color, model, year, starting_price, is_sold)
-        VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """,
-                (vin, make, color, model, year, starting_price, is_sold))
+def main():
+    # create_tables()
+    global logged_in_user
+    global logged_in_user_level
+
+    print("Welcome to the car dealership inventory management system!")
+    while True:
+        print("\nPlease choose an option:")
+        print("1. Log in")
+        print("2. Create an account")
+        print("3. Exit")
+        choice = input("- ")
+        if choice == "1":
+            logged_in_user = login()
+            if logged_in_user:
+                # Retrieve the user's access level from the database
+                cur.execute(
+                    "SELECT level FROM users WHERE user_id = %s", (logged_in_user,))
+                logged_in_user_level = cur.fetchone()[0]
+                menu()
+        elif choice == "2":
+            create_account()
+        elif choice == "3":
+            conn.close()
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 
-def addCustomer(customer_id, user_id, first_name, last_name, phone_number):
-    cur.execute("""
-        INSERT INTO customers(customer_id, user_id, first_name, lastName, phone_number)
-        VALUES (%s, %s, %s, %s, %s);
-        """,
-                (customer_id, user_id, first_name, last_name, phone_number))
+def create_account():
+    print("\nPlease enter your information:")
+    username = input("Username: ")
+    password = input("Password: ")
+    level = input("Access level (0 for admin, 1 for dealer, 2 for engineer): ")
 
+    # Check if username or password already exists
+    cur.execute(
+        "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
+    existing_user = cur.fetchone()
+    if existing_user:
+        print("\nError creating account: Username or password already exists.")
+        return
 
-def addEmployee(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id):
-    cur.execute("""
-        INSERT INTO employees(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id)
-        VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
-        """,
-                (employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id, sell_date))
+    try:
+        cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
+                    (username, password, level))
+        user_id = cur.fetchone()[0]
+        print(f"\nAccount created successfully. Your user ID is {user_id}.")
 
+        # Insert customer details
+        first_name = input("First Name: ")
+        last_name = input("Last Name: ")
+        phone_number = input("Phone Number: ")
+        phone_number = formatPhone(phone_number)
 
-def recordSale(vin, customer_id, selling_price, dealer, location, sell_date):
-    cur.execute("""
-        INSERT INTO sales(vin, customer_id, selling_price, dealer, location, sell_date)
-        VALUES (%s, %s, %s, %s, %s, %s);
-        """,
-                (vin, customer_id, selling_price, dealer, location, sell_date))
+        cur.execute("INSERT INTO Customers (user_id, first_name, last_name, phone_number) VALUES (%s, %s, %s, %s)",
+                    (user_id, first_name, last_name, phone_number))
+        conn.commit()
 
-
-def validateLogin(username, password):
-    cur.execute("""
-        SELECT user_id, level FROM users WHERE username = %s AND password = %s);
-        """,
-                (username, password))
-    # assuming that no user has the same username and password
-    cur.fetchdone()
-
-
-def getUser(username, password):
-    cur.execute("SELECT user_id, first_name, role_id FROM Vw_User_Info WHERE username = %s AND password = %s;",
-                (username, password))
-    # assuming that no user has the same username and password
-    return cur.fetchone()
-
-
-def verifyUserAvailable(s):
-    cur.execute("SELECT user_id FROM Users WHERE username = %s;", (s,))
-    return cur.fetchone() == None
-
-
-def insertUser(username, password, fname, lname, phone):
-    cur.execute("INSERT INTO Users(username, password) VALUES (%s, %s) RETURNING user_id;",
-                (username, password))
-    newUserId = cur.fetchone()[0]
-    cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number) VALUES (%s, %s, %s, %s);",
-                (newUserId, fname, lname, phone))
-    conn.commit()
+    except psycopg2.Error as e:
+        print(f"\nError creating account: {e}")
 
 
 def formatPhone(num):
@@ -76,65 +177,92 @@ def formatPhone(num):
         return 0
 
 
-def main():
-    # login page should look at users table, check level, then direct to admin/customer/employee portal
-    print("Welcome to the LRST Car Dealership Information System. To continue, you will need an account.")
-    print("[1] Login to existing account")
-    print("[2] Create new account")
-    print()
-    userChoice = input("Please enter your decision: ")
+def login():
+    print("\nPlease enter your login information:")
+    username = input("Username: ")
+    password = input("Password: ")
+    try:
+        cur.execute(
+            "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, password))
+        user_id = cur.fetchone()
+        if user_id:
+            print("Login successful.")
+            return user_id[0]
+        else:
+            print("Incorrect username or password.")
+            return None
+    except psycopg2.Error as e:
+        print(f"\nError logging in: {e}")
+        return None
 
-    if (userChoice == '1'):
-        while True:
-            username = input("Enter your username: ")
-            password = input("Enter your password: ")
-            userVerificationResult = getUser(username, password)
 
-            if userVerificationResult != None:
-                break
+def menu():
+    while True:
+        print("\nPlease choose an option:")
+        print("1. Add a car to inventory")
+        print("2. Add a customer")
+        print("3. Add an employee")
+        print("4. Record a sale")
+        print("5. Log out")
+        choice = input("> ")
+        if choice == "1":
+            if logged_in_user_level == 0 or logged_in_user_level == 1:
+                # ask for details
+                add_car()
             else:
-                print(
-                    "No such user with the given username and password. Please try again.")
-
-        # if userVerificationResult[2] == 0:
-        #    printAdminMenu()
-        # elif userVerificationResult[2] == 1:
-        #    printDealerMenu()
-        # elif userVerificationResult[2] == 2:
-        #    printMechanicMenu()
-        # elif userVerificationResult[2] == 3:
-        #    printCustomerMenu()
-
-    elif (userChoice == '2'):
-        print("If you are an employee, please contact your supervisor or system administrator to activate your account.")
-        print()
-        while True:
-            username = input("Enter a username with 20 characters or less: ")
-            if 0 < len(username) <= 20:
-                if verifyUserAvailable(username):
-                    break
-                else:
-                    print("Username already taken. Please try again.")
+                print("You do not have permission to perform this action.")
+        elif choice == "2":
+            if logged_in_user_level == 0 or logged_in_user_level == 1:
+                # ask for details
+                add_customer()
             else:
-                print("Invalid username. Please try again.")
-        while True:
-            password = input("Enter a password with 20 characters or less: ")
-            if 0 < len(password) <= 20:
-                break
+                print("You do not have permission to perform this action.")
+        elif choice == "3":
+            if logged_in_user_level == 0:
+                # ask for details
+                add_employee()
             else:
-                print("Invalid password. Please try again.")
-        fname = input("Enter your first name: ")
-        lname = input("Enter your last name: ")
-        while True:
-            phone = input("Enter your phone number: ")
-            formattedPhone = formatPhone(phone)
-            if formattedPhone != 0:
-                break
-            else:
-                print("Invalid format. Please try again.")
-        insertUser(username, password, fname, lname, formattedPhone)
+                print("You do not have permission to perform this action.")
+        elif choice == "4":
+            if logged_in_user_level == 0 or logged_in_user_level == 1:
+                # ask for details
+                record_sale()
 
-        # login somehow and then continue to menus
+
+def add_car(vin, make, color, model, year, starting_price, is_sold):
+    cur.execute("""
+        INSERT INTO stock (vin, make, color, model, year, starting_price, is_sold)
+        VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """,
+                (vin, make, color, model, year, starting_price, is_sold))
+    conn.commit()
+
+
+def add_customer(customer_id, user_id, first_name, last_name, phone_number):
+    cur.execute("""
+        INSERT INTO customers(customer_id, user_id, first_name, last_name, phone_number)
+        VALUES (%s, %s, %s, %s, %s);
+        """,
+                (customer_id, user_id, first_name, last_name, phone_number))
+    conn.commit()
+
+
+def add_employee(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id):
+    cur.execute("""
+        INSERT INTO employees(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id)
+        VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
+        """,
+                (employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id))
+    conn.commit()
+
+
+def record_sale(vin, customer_id, selling_price, dealer, location, sell_date):
+    cur.execute("""
+        INSERT INTO sales(vin, customer_id, selling_price, dealer, location, sell_date)
+        VALUES (%s, %s, %s, %s, %s, %s);
+        """,
+                (vin, customer_id, selling_price, dealer, location, sell_date))
+    conn.commit()
 
 
 main()
