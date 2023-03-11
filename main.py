@@ -213,7 +213,7 @@ def menu():
                 print("You do not have permission to perform this action.")
         elif choice == "2":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                # ask for details
+                
                 add_customer()
             else:
                 print("You do not have permission to perform this action.")
@@ -225,8 +225,16 @@ def menu():
                 print("You do not have permission to perform this action.")
         elif choice == "4":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                # ask for details
-                record_sale()
+                print("Enter the following information. If unknown, leave blank:")
+                vin, customer_id, dealer, selling_price, location, sell_date = None
+                vin = input("VIN of car sold: ")
+                customer_id = input("Customer ID of person the car was sold to: ")
+                dealer = input("ID of person who sold the car: ")
+                selling_price = input("How much was the car sold for: ")
+                location = input("Which location (number) did the sale take place: ")
+                sell_date = input("When was the car sold: ")
+                record_sale(vin, customer_id, selling_price, dealer, location, sell_date)
+        
 
 
 def add_car(vin, make, color, model, year, starting_price, is_sold):
