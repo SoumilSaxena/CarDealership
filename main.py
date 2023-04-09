@@ -1,6 +1,8 @@
 import re
 import psycopg2
-
+import hashlib #used for password hash
+import binascii #used for password hash
+import os #used for password hash random character
 # Global variables to store the logged-in user ID and their access level
 logged_in_user = None
 logged_in_user_level = None
@@ -138,7 +140,7 @@ def create_account():
     username = input("Username: ")
     password = input("Password: ")
     level = input("Access level (0 for admin, 1 for dealer, 2 for engineer): ")
-
+    hash_password = hash_password(password) #Password gets hashed
     # Check if username or password already exists
     cur.execute(
         "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
@@ -148,8 +150,9 @@ def create_account():
         return
 
     try:
-        cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
-                    (username, password, level))
+        cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id", (username, hash_password, level))
+        #cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
+        #            (username, password, level))
         user_id = cur.fetchone()[0]
         print(f"\nAccount created successfully. Your user ID is {user_id}.")
 
@@ -166,6 +169,35 @@ def create_account():
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def hash_password(password):
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    hash_password = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 200000)
+    hash_password = binascii.hexlify(hash_password)
+    return (salt+hash_password).decode('ascii')
+
+def verify_password(stored_password, provided_password):
+    salt = stored_password[:64]
+    stored_password = stored_password[64:]
+    hash_password = hashlib.pbkdf2_hmac('sha512', provided_password.encode('utf-8'), salt.encode('ascii'), 200000)
+    computed_stored_password = binascii.hexlify(hash_password).decode('ascii')
+    return stored_password == computed_stored_password
+
+def update_passwords_to_hash():
+    #delete me after running once to update the passwords to be hashed
+    cur.execute("SELECT User_Id, Password FROM Users")
+    rows = cur.fetchall()
+    #loop through each row and update the password
+    for row in rows:
+        user_id = row[0]
+        password = row[1]
+        #hash the password
+        hashed_password = hash_password(password)
+        #update the user's password in the database
+        print("Now updating User: %s", user_id)
+        cur.execute("UPDATE Users SET Password = %s WHERE User_ID = %s", (hashed_password,))
+        conn.commit()
+    print("Finished Updating Passwords")
+    return
 
 def formatPhone(num):
     num = re.sub("[ ()-]", '', num)
@@ -181,6 +213,16 @@ def login():
     print("\nPlease enter your login information:")
     username = input("Username: ")
     password = input("Password: ")
+    #query user password hash
+    cur.execute("SELECT password FROM users WHERE username = %s", (username,))
+    stored_database_password = cur.fetchone()
+    if verify_password(stored_database_password, password):
+        #Password verified
+        print()
+    else:
+        #Incorrect Password
+        print("Incorrect username or password")
+        return None
     try:
         cur.execute(
             "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, password))
