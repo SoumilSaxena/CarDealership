@@ -47,6 +47,7 @@ CREATE TABLE Customers(
 	User_ID int REFERENCES Users,
 	First_Name varchar(255),
 	Last_Name varchar(255),
+	Email_Address varchar(255),
 	Phone_Number char(12)
 );
 

@@ -65,6 +65,7 @@ logged_in_user_level = None
 #             User_ID int REFERENCES Users,
 #             First_Name varchar(255),
 #             Last_Name varchar(255),
+#             Email_Address varchar(255),
 #             Phone_Number char(12)
 #         )
 #         """,
@@ -139,7 +140,7 @@ def create_account():
     print("\nPlease enter your information:")
     username = input("Username: ")
     password = input("Password: ")
-    level = input("Access level (0 for admin, 1 for dealer, 2 for engineer): ")
+    level = input("Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer): ")
     hash_password = hash_password(password) #Password gets hashed
     # Check if username or password already exists
     cur.execute(
@@ -249,14 +250,12 @@ def menu():
         choice = input("> ")
         if choice == "1":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                # ask for details
-                add_car()
+                add_car() # ask for details then calls add_car(...) for insert into db
             else:
                 print("You do not have permission to perform this action.")
         elif choice == "2":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                
-                add_customer()
+                add_customer() #asks for detils then calls add_customer(...) for insert into db
             else:
                 print("You do not have permission to perform this action.")
         elif choice == "3":
@@ -277,7 +276,16 @@ def menu():
                 sell_date = input("When was the car sold: ")
                 record_sale(vin, customer_id, selling_price, dealer, location, sell_date)
         
-
+def add_car():
+    print("Enter the following information for car. If unkown, leave blank:")
+    vin, make, color, model, year, starting_price, is_sold = None
+    vin = input("VIN of car: ")
+    make = input("Make of car: ")
+    model = input("Model of car: ")
+    year = input("Year of car: ")
+    starting_price = input("Starting Price of car: ")
+    is_sold = input("Has the car been sold (boolean): ")
+    add_car(vin, make, color, model, year, starting_price, is_sold)
 
 def add_car(vin, make, color, model, year, starting_price, is_sold):
     cur.execute("""
@@ -287,14 +295,25 @@ def add_car(vin, make, color, model, year, starting_price, is_sold):
                 (vin, make, color, model, year, starting_price, is_sold))
     conn.commit()
 
+def add_customer():
+    print("Enter the following information about a new customer. If unkown, leave blank:")
+    first_name, last_name, email_address, phone_number = None
+    email_address = input("Enter customer email: ")
+    first_name = input("Enter customer first name: ")
+    last_name = input("Enter customer last name: ")
+    phone_number = input("Enter customer phone number: ")
+    add_customer(first_name, last_name, email_address, phone_number)
 
-def add_customer(customer_id, user_id, first_name, last_name, phone_number):
-    cur.execute("""
-        INSERT INTO customers(customer_id, user_id, first_name, last_name, phone_number)
-        VALUES (%s, %s, %s, %s, %s);
-        """,
-                (customer_id, user_id, first_name, last_name, phone_number))
-    conn.commit()
+def add_customer(first_name, last_name, email_address, phone_number):
+    try:
+        cur.execute("""
+            INSERT INTO customers(first_name, last_name, email_address, phone_number)
+            VALUES (%s, %s, %s, %s, %s);
+            """,
+                    (first_name, last_name, email_address, phone_number))
+        conn.commit()
+    except psycopg2.Error as e:
+        print(f"\nError creating account: {e}")
 
 
 def add_employee(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id):
