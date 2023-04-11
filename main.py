@@ -178,7 +178,7 @@ def hash_password(password):
 
 def verify_password(stored_password, provided_password):
     salt = stored_password[:64]
-    stored_password = stored_password[64:]
+    stored_ password = stored_password[64:]
     hash_password = hashlib.pbkdf2_hmac('sha512', provided_password.encode('utf-8'), salt.encode('ascii'), 200000)
     computed_stored_password = binascii.hexlify(hash_password).decode('ascii')
     return stored_password == computed_stored_password
