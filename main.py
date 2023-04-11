@@ -217,13 +217,11 @@ def login():
     #query user password hash
     cur.execute("SELECT password FROM users WHERE username = %s", (username,))
     stored_database_password = cur.fetchone()
-    if verify_password(stored_database_password, password):
-        #Password verified
-        print()
-    else:
+    if not verify_password(stored_database_password, password):
         #Incorrect Password
         print("Incorrect username or password")
         return None
+    #Password verified
     try:
         cur.execute(
             "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, password))
@@ -250,7 +248,7 @@ def menu():
         choice = input("> ")
         if choice == "1":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                add_car() # ask for details then calls add_car(...) for insert into db
+                add_car() #asks for details then calls add_car(...) for insert into db
             else:
                 print("You do not have permission to perform this action.")
         elif choice == "2":
@@ -260,21 +258,12 @@ def menu():
                 print("You do not have permission to perform this action.")
         elif choice == "3":
             if logged_in_user_level == 0:
-                # ask for details
-                add_employee()
+                add_employee() #asks for details then calls add_employee(...) for insert into db
             else:
                 print("You do not have permission to perform this action.")
         elif choice == "4":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
-                print("Enter the following information. If unknown, leave blank:")
-                vin, customer_id, dealer, selling_price, location, sell_date = None
-                vin = input("VIN of car sold: ")
-                customer_id = input("Customer ID of person the car was sold to: ")
-                dealer = input("ID of person who sold the car: ")
-                selling_price = input("How much was the car sold for: ")
-                location = input("Which location (number) did the sale take place: ")
-                sell_date = input("When was the car sold: ")
-                record_sale(vin, customer_id, selling_price, dealer, location, sell_date)
+                add_sale #asks for details then calls record_sale(...) for insert into db
         
 def add_car():
     print("Enter the following information for car. If unkown, leave blank:")
@@ -288,12 +277,15 @@ def add_car():
     add_car(vin, make, color, model, year, starting_price, is_sold)
 
 def add_car(vin, make, color, model, year, starting_price, is_sold):
-    cur.execute("""
-        INSERT INTO stock (vin, make, color, model, year, starting_price, is_sold)
-        VALUES (%s, %s, %s, %s, %s, %s, %s);
-        """,
-                (vin, make, color, model, year, starting_price, is_sold))
-    conn.commit()
+    try:
+        cur.execute("""
+            INSERT INTO stock (vin, make, color, model, year, starting_price, is_sold)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
+            """,
+                    (vin, make, color, model, year, starting_price, is_sold))
+        conn.commit()
+    except psycopg2.Error as e:
+        print(f"\nError creating account: {e}")
 
 def add_customer():
     print("Enter the following information about a new customer. If unkown, leave blank:")
@@ -315,23 +307,49 @@ def add_customer(first_name, last_name, email_address, phone_number):
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def add_employee():
+    print("Enter the following information for adding a new employee. If unknown, leave blank:")
+    birthdate, salary, first_name, last_name, address = None
+    first_name = input("Enter first name: ")
+    last_name = input("Enter last name: ")
+    address = input("Enter address: ")
+    salary = input("Enter salary: ")
+    birthdate = input("Enter birthday (date): ")
+    role_id = input("Access level (1 for dealer, 2 for engineer): ")
+    add_employee(birthdate, salary, first_name, last_name, address, role_id)
+    
 
-def add_employee(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id):
-    cur.execute("""
-        INSERT INTO employees(employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id)
+def add_employee(birthdate, salary, first_name, last_name, address, role_id):
+    try:
+        cur.execute("""
+        INSERT INTO employees(birthdate, salary, first_name, last_name, address, role_id)
         VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
         """,
-                (employee_id, user_id, birthdate, salary, first_name, last_name, address, role_id))
-    conn.commit()
+                (birthdate, salary, first_name, last_name, address, role_id))
+        conn.commit()
+    except psycopg2.Error as e:
+        print(f"\nError creating account: {e}")
 
+def add_sale():
+    print("Enter the following information. If unknown, leave blank:")
+    vin, customer_id, dealer, selling_price, location, sell_date = None
+    vin = input("VIN of car sold: ")
+    customer_id = input("Customer ID of person the car was sold to: ")
+    dealer = input("ID of person who sold the car: ")
+    selling_price = input("How much was the car sold for: ")
+    location = input("Which location (number) did the sale take place: ")
+    sell_date = input("When was the car sold: ")
+    record_sale(vin, customer_id, selling_price, dealer, location, sell_date)
 
 def record_sale(vin, customer_id, selling_price, dealer, location, sell_date):
-    cur.execute("""
-        INSERT INTO sales(vin, customer_id, selling_price, dealer, location, sell_date)
-        VALUES (%s, %s, %s, %s, %s, %s);
-        """,
-                (vin, customer_id, selling_price, dealer, location, sell_date))
-    conn.commit()
-
+    try:
+        cur.execute("""
+            INSERT INTO sales(vin, customer_id, selling_price, dealer, location, sell_date)
+            VALUES (%s, %s, %s, %s, %s, %s);
+            """,
+                    (vin, customer_id, selling_price, dealer, location, sell_date))
+        conn.commit()
+    except psycopg2.Error as e:
+        print(f"\nError creating account: {e}")
 
 main()
