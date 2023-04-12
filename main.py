@@ -260,7 +260,7 @@ def menu_admin():
     print("10. List customers")
     print("11. List employees")
     print("12. List sales")
-
+    #other
     print("13. Log out")
     print("14. Quit program")
     choice = input("> ")
@@ -275,11 +275,11 @@ def menu_admin():
     elif choice == "5":
         remove_car() #uses vin number to remove
     elif choice == "6":
-        remove_customer() #TODO
+        remove_customer()
     elif choice == "7":
-        remove_employee() #TODO
+        remove_employee()
     elif choice == "8":
-        remove_sale() #TODO
+        remove_sale()
     elif choice == "9":
         list_cars_options()
     elif choice == "10":
@@ -292,6 +292,8 @@ def menu_admin():
         main()
     elif choice == "14":
         quit()
+    else:
+        print("Unkown input")
     menu_admin()
     #Cannot leave unless you logout
 
@@ -299,7 +301,35 @@ def menu_dealer():
     print("\nPlease choose an option:")
     print("1. Add a car to inventory")
     print("2. Add a customer")
-    print("3. Record a sale")
+    print("3. Add a sale")
+    print("4. List cars")
+    print("5. List customers")
+    print("6. List employees")
+    print("7. List sales")
+    print("8. Log out")
+    print("9. Quit program")
+    choice = input("> ")
+
+    if choice == "1":
+        add_car()
+    elif choice == "2":
+        add_customer()
+    elif choice == "3":
+        add_employee()
+    elif choice == "4":
+        add_sale()
+    elif choice == "5":
+        list_cars_options() #uses vin number to remove
+    elif choice == "6":
+        list_customer() 
+    elif choice == "7":
+        list_employee()
+    elif choice == "8":
+        main()
+    elif choice == "9":
+        quit()
+    else:
+        print("Unkown input")
 
 def menu_engineer():
     print("\nPlease choose an option:")
@@ -307,6 +337,7 @@ def menu_engineer():
 
 def menu_customer():
     print("\nPlease choose an option:")
+
     #TODO
 
 def menu():
