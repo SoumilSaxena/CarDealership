@@ -125,7 +125,15 @@ def main():
                 cur.execute(
                     "SELECT level FROM users WHERE user_id = %s", (logged_in_user,))
                 logged_in_user_level = cur.fetchone()[0]
-                menu()
+                if(logged_in_user_level == 0):
+                    menu_admin()
+                elif(logged_in_user_level == 1):
+                    menu_dealer()
+                elif(logged_in_user_level == 2):
+                    menu_enginner()
+                elif(logged_in_user_level == 3):
+                    menu_customer()
+
         elif choice == "2":
             create_account()
         elif choice == "3":
@@ -242,14 +250,57 @@ def login():
         print(f"\nError logging in: {e}")
         return None
 
+def menu_admin():
+    print("\nPlease choose an option:")
+    print("1. Add a car to inventory")
+    print("2. Add a customer")
+    print("3. Add an employee")
+    print("4. Add a sale")
+    print("5. Remove a car from inventory")
+    print("6. Remove a customer")
+    print("7. Remove an employee")
+    print("8. Remove a sale") #Should not be used
+    print("9. Log out")
+    choice = input("> ")
+    if choice == "1":
+        add_car()
+    elif choice == "2":
+        add_customer()
+    elif choice == "3":
+        add_employee()
+    elif choice == "4":
+        add_sale()
+    elif choice == "5":
+        remove_car() #uses vin number to remove
+    elif choice == "6":
+        remove_customer() #TODO
+    elif choice == "7":
+        remove_employee() #TODO
+    elif choice == "8":
+        remove_sale() #TODO
+    return
+
+def menu_dealer():
+    print("\nPlease choose an option:")
+    print("1. Add a car to inventory")
+    print("2. Add a customer")
+    print("3. Record a sale")
+
+def menu_enginner():
+    print("\nPlease choose an option:")
+    #TODO
+
+def menu_customer():
+    print("\nPlease choose an option:")
+    #TODO
 
 def menu():
     while True:
         print("\nPlease choose an option:")
-        print("1. Add a car to inventory")
-        print("2. Add a customer")
-        print("3. Add an employee")
-        print("4. Record a sale")
+        print("1. Add a car to inventory") #dealer
+        print("2. Add a customer") #dealer
+        print("3. Add an employee") #admin
+        print("4. Record a sale") #dealer
         print("5. Log out")
         choice = input("> ")
         if choice == "1":
@@ -272,16 +323,72 @@ def menu():
                 add_sale #asks for details then calls record_sale(...) for insert into db
         elif choice == "5":
             exit()
-        
-def add_car():
+
+#Start Car
+def list_cars():
+    try:
+        cur.execute("SELECT * FROM stock")
+        rows = cur.fetchall()
+        print("Current car stock:")
+        for row in rows:
+            print(f"VIN: {row[0]}, Make: {row[1]}, Color: {row[2]}, Model: {row[3]}, Year: {row[4]}, Starting Price: {row[5]}, Is Sold: {row[6]}")
+    except psycopg2.Error as e:
+        print(f"\nError listing cars: {e}")
+
+def list_cars_by_attribute():
+    make, model, year = None
+    make = input("Make of car: ")
+    model = input("Model of car: ")
+    year = input("Year of car: ")
+    query = "SELECT * FROM stock WHERE 1=1"
+    params = []
+    if make:
+        query += " AND make = %s"
+        params.append(make)
+    if model:
+        query += " AND model = %s"
+        params.append(model)
+    if year:
+        try:
+            int(year)
+        except ValueError:
+            print("Year must be a valid integer.")
+            return
+        query += " AND year = %s"
+        params.append(year)
+    try:
+        cur.execute(query, tuple(params))
+        rows = cur.fetchall()
+        for row in rows:
+                print(f"VIN: {row[0]}, Make: {row[1]}, Color: {row[2]}, Model: {row[3]}, Year: {row[4]}, Starting Price: {row[5]}, Is Sold: {row[6]}")
+    except psycopg2.Error as e:
+        print(f"\nError listing cars: {e}")
+    return
+
+def get_car_input():
     print("Enter the following information for car. If unkown, leave blank:")
     vin, make, color, model, year, starting_price, is_sold = None
     vin = input("VIN of car: ")
     make = input("Make of car: ")
+    color = input("Color of car: ")
     model = input("Model of car: ")
     year = input("Year of car: ")
     starting_price = input("Starting Price of car: ")
     is_sold = input("Has the car been sold (boolean): ")
+    return vin, make, color, model, year, starting_price, is_sold
+
+def remove_car():
+    vin = input("VIN of car: ")
+    try:
+        cur.execute("""DELETE FROM stock WHERE vin = %s;""", (vin,))
+        conn.commit()
+        print("Car removed successfully")
+    except psycopg2.Error as e:
+        print(f"\nError removing car: {e}")
+    return
+
+def add_car():
+    vin, make, color, model, year, starting_price, is_sold = get_car_input()
     add_car(vin, make, color, model, year, starting_price, is_sold)
 
 def add_car(vin, make, color, model, year, starting_price, is_sold):
@@ -294,7 +401,10 @@ def add_car(vin, make, color, model, year, starting_price, is_sold):
         conn.commit()
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
+#End Car
 
+
+#Start Customer
 def add_customer():
     print("Enter the following information about a new customer. If unkown, leave blank:")
     first_name, last_name, email_address, phone_number = None
@@ -315,6 +425,11 @@ def add_customer(first_name, last_name, email_address, phone_number):
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def remove_customer():
+    return
+#End Customer
+
+#Start Employee
 def add_employee():
     print("Enter the following information for adding a new employee. If unknown, leave blank:")
     birthdate, salary, first_name, last_name, address = None
@@ -338,6 +453,11 @@ def add_employee(birthdate, salary, first_name, last_name, address, role_id):
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def remove_employee():
+    return
+#End Employee
+
+#Start Sale
 def add_sale():
     print("Enter the following information. If unknown, leave blank:")
     vin, customer_id, dealer, selling_price, location, sell_date = None
@@ -359,5 +479,9 @@ def record_sale(vin, customer_id, selling_price, dealer, location, sell_date):
         conn.commit()
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
+
+def remove_sale():
+    return
+#End Sale
 
 main()
