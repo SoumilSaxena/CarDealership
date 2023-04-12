@@ -100,7 +100,7 @@ def collapseComment():
     print()
 
 # Establish a connection to the database
-conn = psycopg2.connect("dbname=postgres user=postgres password=Soumil008")
+#conn = psycopg2.connect("dbname=postgres user=postgres password=?????")
 
 # Create a cursor object to interact with the database
 cur = conn.cursor()
@@ -130,7 +130,7 @@ def main():
                 elif(logged_in_user_level == 1):
                     menu_dealer()
                 elif(logged_in_user_level == 2):
-                    menu_enginner()
+                    menu_engineer()
                 elif(logged_in_user_level == 3):
                     menu_customer()
 
@@ -159,8 +159,6 @@ def create_account():
         return
     try:
         cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id", (username, password, level))
-        #cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
-        #            (username, password, level))
         user_id = cur.fetchone()[0]
         print(f"\nAccount created successfully. Your user ID is {user_id}.")
         conn.commit()
@@ -223,7 +221,6 @@ def login():
         print(f"\nError selecting password in: {e}")
         return None
     stored_database_password = cur.fetchone()[0]
-    print(stored_database_password)
     if not verify_password(stored_database_password, password):
         #Incorrect Password
         print("Incorrect username or password")
@@ -262,7 +259,8 @@ def menu_admin():
     print("11. List employees")
     print("12. List sales")
 
-    print("9. Log out")
+    print("13. Log out")
+    print("14. Quit program")
     choice = input("> ")
     if choice == "1":
         add_car()
@@ -281,10 +279,19 @@ def menu_admin():
     elif choice == "8":
         remove_sale() #TODO
     elif choice == "9":
-        list_cars()
+        list_cars_options()
     elif choice == "10":
         list_customer()
-    return
+    elif choice == "11":
+        list_employee()
+    elif choice == "12":
+        list_sales()
+    elif choice == "13":
+        main()
+    elif choice == "14":
+        quit()
+    menu_admin()
+    #Cannot leave unless you logout
 
 def menu_dealer():
     print("\nPlease choose an option:")
@@ -292,7 +299,7 @@ def menu_dealer():
     print("2. Add a customer")
     print("3. Record a sale")
 
-def menu_enginner():
+def menu_engineer():
     print("\nPlease choose an option:")
     #TODO
 
@@ -331,14 +338,35 @@ def menu():
             exit()
 
 #Start Car
+def list_cars_options():
+    print("List cars has multiple options:")
+    print("A. List all unsold cars")
+    print("B. List cars by make, model, year")
+    print("C. List car by VIN, used for confirming before deleting")
+    sub_choice = input("> ")
+    if sub_choice == "A":
+        list_cars()
+    elif sub_choice == "B":
+        list_cars_by_attribute()
+    elif sub_choice == "C":
+        list_car_by_vin()
+    else:
+        print("Invalid Choice. Try again.")
+        menu_admin()
+
 def list_cars():
     #Prints cars that have not been sold, maybe ORDER BY make
     try:
         cur.execute("SELECT * FROM stock WHERE is_sold = false")
         rows = cur.fetchall()
-        print("Current car stock:")
-        for row in rows:
-            print(f"VIN: {row[0]}, Make: {row[1]}, Color: {row[2]}, Model: {row[3]}, Year: {row[4]}, Starting Price: {row[5]}, Is Sold: {row[6]}")
+        if rows:
+            print("Current car stock:")
+            print(f"{'VIN':<20} {'Make':<20} {'Model':<20} {'Year':<10} {'Color':<20} {'Starting Price':<20}")
+            print("-" * 100)
+            for row in rows:
+                print(f"{row[0]:<20} {row[1]:<20} {row[3]:<20} {row[4]:<10} {row[2]:<20} {row[5]:<20}")        
+        else:
+            print("No unsold cars found.")
     except psycopg2.Error as e:
         print(f"\nError listing cars: {e}")
 
@@ -366,13 +394,18 @@ def list_cars_by_attribute():
     try:
         cur.execute(query, tuple(params))
         rows = cur.fetchall()
-        for row in rows:
-                print(f"VIN: {row[0]}, Make: {row[1]}, Color: {row[2]}, Model: {row[3]}, Year: {row[4]}, Starting Price: {row[5]}, Is Sold: {row[6]}")
+        if rows:    
+            print(f"{'VIN':<20} {'Make':<20} {'Model':<20} {'Year':<10} {'Color':<15} {'Starting Price':<20} {'Is Sold':<10}")
+            print("-" * 110)
+            for row in rows:
+                print(f"{row[0]:<20} {row[1]:<20} {row[3]:<20} {row[4]:<10} {row[2]:<15} {row[5]:<20} {row[6]:<10}")
+        else:
+            print("No cars found with that search criteria.")
     except psycopg2.Error as e:
         print(f"\nError listing cars: {e}")
     return
 
-def search_car_by_vin():
+def list_car_by_vin():
     vin = input("Enter VIN: ")
     try:
         cur.execute("SELECT * FROM stock WHERE vin = %s", (vin,))
@@ -460,7 +493,19 @@ def list_customer():
 
 
 def remove_customer():
-
+    customer_id = input("Enter customer ID: ")
+    try:
+        cur.execute("SELECT * FROM customers WHERE customer_id = %s", (customer_id,))
+        row = cur.fetchone()
+        confirm = input(f"Are you sure you want to remove customer {row[1]} {row[2]}? (y/n)")
+        if confirm.lower() == "y":
+            cur.execute("DELETE FROM customers WHERE customer_id = %s", (customer_id,))
+            conn.commit()
+            print(f"Customer {row[1]} {row[2]} has been removed.")
+        else:
+            print("No customer found with that ID.")
+    except psycopg2.Error as e:
+        print(f"\nError removing customer: {e}")
     return
 #End Customer
 
@@ -487,6 +532,22 @@ def add_employee(birthdate, salary, first_name, last_name, address, role_id):
         conn.commit()
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
+
+#lists all employees
+def list_employee():
+    try:
+        cur.execute("SELECT Employee_ID, First_Name, Last_Name, Birthdate, Salary, Address, Role_ID FROM Employees")
+        rows = cur.fetchall()
+        if rows:
+            print(f"{'ID':<5} {'Name':<20} {'Birthdate':<15} {'Salary':<15} {'Address':<40} {'Role':<15}")
+            print("-" * 105)
+            for row in rows:
+                role = get_role_name(row[6])
+                print(f"{row[0]:<5} {row[1]} {row[2]:<20} {row[3]:<15} {row[4]:<15} {row[5]:<40} {role:<15}")
+        else:
+            print("No employees found.")
+    except psycopg2.Error as e:
+        print(f"\nError listing employees: {e}")
 
 def remove_employee():
     return
@@ -515,8 +576,43 @@ def record_sale(vin, customer_id, selling_price, dealer, location, sell_date):
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def list_sales():
+    try:
+        #This is ugly -Z
+        cur.execute("SELECT Sales.VIN, Stock.Make, Stock.Model, Stock.Year, Stock.Color, Sales.Selling_Price, Customers.First_Name, Customers.Last_Name, Employees.First_Name, Employees.Last_Name, Locations.Location_Name FROM Sales JOIN Stock ON Sales.VIN=Stock.VIN JOIN Customers ON Sales.Customer_ID=Customers.Customer_ID JOIN Employees ON Sales.Dealer=Employees.Employee_ID JOIN Locations ON Sales.Location=Locations.Location_ID")
+        rows = cur.fetchall()
+        if rows:
+            print(f"{'VIN':<18} {'Make':<12} {'Model':<12} {'Year':<8} {'Color':<10} {'Selling Price':<15} {'Customer Name':<25} {'Dealer Name':<20} {'Location':<15}")
+            print("-" * 125)
+            for row in rows:
+                print(f"{row[0]:<18} {row[1]:<12} {row[2]:<12} {row[3]:<8} {row[4]:<10} {row[5]:<15} {row[6]} {row[7]:<15} {row[8]} {row[9]:<15} {row[10]}")        
+        else:
+            print("No sales found.")
+    except psycopg2.Error as e:
+        print(f"\nError listing sales: {e}")
+
 def remove_sale():
-    return
+    vin = input("Enter VIN of the car sold: ")
+    try:
+        cur.execute("DELETE FROM sales WHERE vin = %s", (vin,))
+        conn.commit()
+        print(f"Sale with VIN {vin} removed successfully.")
+    except psycopg2.Error as e:
+        print(f"\nError removing sale: {e}")
 #End Sale
+
+#Helper functions
+def get_role_name(role_level):
+    #Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer)
+    if role_level == 0:
+        return "Admin"
+    elif role_level == 1:
+        return "Dealer"
+    elif role_level == 2:
+        return "Engineer"
+    elif role_level == 3:
+        return "Customer"
+    else:
+        return "Unknown"
 
 main()
