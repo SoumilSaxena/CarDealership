@@ -7,7 +7,7 @@ import os #used for password hash random character
 logged_in_user = None
 logged_in_user_level = None
 
-
+def collapseComment():
 # def create_tables():
 #     commands = [
 #         """
@@ -97,7 +97,7 @@ logged_in_user_level = None
 #     finally:
 #         if conn is not None:
 #             conn.close()
-
+    print()
 
 # Establish a connection to the database
 conn = psycopg2.connect("dbname=postgres user=postgres password=Soumil008")
@@ -141,7 +141,8 @@ def create_account():
     username = input("Username: ")
     password = input("Password: ")
     level = input("Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer): ")
-    hash_password = hash_password(password) #Password gets hashed
+    password = hash_password(password) #Password gets hashed
+    print(password)
     # Check if username or password already exists
     cur.execute(
         "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
@@ -149,9 +150,8 @@ def create_account():
     if existing_user:
         print("\nError creating account: Username or password already exists.")
         return
-
     try:
-        cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id", (username, hash_password, level))
+        cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id", (username, password, level))
         #cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
         #            (username, password, level))
         user_id = cur.fetchone()[0]
@@ -174,11 +174,11 @@ def hash_password(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
     hash_password = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 200000)
     hash_password = binascii.hexlify(hash_password)
-    return (salt+hash_password).decode('ascii')
+    return (salt + hash_password).decode('ascii')
 
 def verify_password(stored_password, provided_password):
     salt = stored_password[:64]
-    stored_ password = stored_password[64:]
+    stored_password = stored_password[64:]
     hash_password = hashlib.pbkdf2_hmac('sha512', provided_password.encode('utf-8'), salt.encode('ascii'), 200000)
     computed_stored_password = binascii.hexlify(hash_password).decode('ascii')
     return stored_password == computed_stored_password
@@ -215,16 +215,22 @@ def login():
     username = input("Username: ")
     password = input("Password: ")
     #query user password hash
-    cur.execute("SELECT password FROM users WHERE username = %s", (username,))
-    stored_database_password = cur.fetchone()
+    try:
+        cur.execute("SELECT password FROM users WHERE username = %s", (username,))
+    except psycopg2.Error as e:
+        print(f"\nError selecting password in: {e}")
+        return None
+    stored_database_password = cur.fetchone()[0]
+    print(stored_database_password)
     if not verify_password(stored_database_password, password):
         #Incorrect Password
         print("Incorrect username or password")
         return None
     #Password verified
+    print("Password Verified")
     try:
         cur.execute(
-            "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, password))
+            "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, stored_database_password))
         user_id = cur.fetchone()
         if user_id:
             print("Login successful.")
@@ -264,6 +270,8 @@ def menu():
         elif choice == "4":
             if logged_in_user_level == 0 or logged_in_user_level == 1:
                 add_sale #asks for details then calls record_sale(...) for insert into db
+        elif choice == "5":
+            exit()
         
 def add_car():
     print("Enter the following information for car. If unkown, leave blank:")

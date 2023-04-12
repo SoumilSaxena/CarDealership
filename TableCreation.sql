@@ -1,7 +1,7 @@
 CREATE TABLE Users(
 	User_ID serial PRIMARY KEY,
 	Username varchar(20) NOT NULL,
-	Password varchar(20) NOT NULL,
+	Password varchar(192) NOT NULL,
 	Level int NOT NULL
 );
 
