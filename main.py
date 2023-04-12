@@ -100,7 +100,6 @@ def collapseComment():
     print()
 
 # Establish a connection to the database
-conn = psycopg2.connect("dbname=postgres user=postgres password=Soumil008")
 
 # Create a cursor object to interact with the database
 cur = conn.cursor()
@@ -150,7 +149,6 @@ def create_account():
     password = input("Password: ")
     level = input("Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer): ")
     password = hash_password(password) #Password gets hashed
-    print(password)
     # Check if username or password already exists
     cur.execute(
         "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
@@ -164,19 +162,14 @@ def create_account():
         #            (username, password, level))
         user_id = cur.fetchone()[0]
         print(f"\nAccount created successfully. Your user ID is {user_id}.")
-
-        # Insert customer details
-        first_name = input("First Name: ")
-        last_name = input("Last Name: ")
-        phone_number = input("Phone Number: ")
-        phone_number = formatPhone(phone_number)
-
-        cur.execute("INSERT INTO Customers (user_id, first_name, last_name, phone_number) VALUES (%s, %s, %s, %s)",
-                    (user_id, first_name, last_name, phone_number))
         conn.commit()
-
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
+    if level == 0 or level == 1 or level == 2:
+        add_employee()
+    elif level == 3:
+        # Insert customer details
+        add_customer()
 
 def hash_password(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
@@ -252,14 +245,22 @@ def login():
 
 def menu_admin():
     print("\nPlease choose an option:")
+    #add
     print("1. Add a car to inventory")
     print("2. Add a customer")
     print("3. Add an employee")
     print("4. Add a sale")
+    #remove
     print("5. Remove a car from inventory")
     print("6. Remove a customer")
     print("7. Remove an employee")
     print("8. Remove a sale") #Should not be used
+    #list
+    print("9. List cars")
+    print("10. List customers")
+    print("11. List employees")
+    print("12. List sales")
+
     print("9. Log out")
     choice = input("> ")
     if choice == "1":
@@ -278,6 +279,10 @@ def menu_admin():
         remove_employee() #TODO
     elif choice == "8":
         remove_sale() #TODO
+    elif choice == "9":
+        list_cars()
+    elif choice == "10":
+        list_customer()
     return
 
 def menu_dealer():
@@ -326,8 +331,9 @@ def menu():
 
 #Start Car
 def list_cars():
+    #Prints cars that have not been sold, maybe ORDER BY make
     try:
-        cur.execute("SELECT * FROM stock")
+        cur.execute("SELECT * FROM stock WHERE is_sold = false")
         rows = cur.fetchall()
         print("Current car stock:")
         for row in rows:
@@ -364,6 +370,18 @@ def list_cars_by_attribute():
     except psycopg2.Error as e:
         print(f"\nError listing cars: {e}")
     return
+
+def search_car_by_vin():
+    vin = input("Enter VIN: ")
+    try:
+        cur.execute("SELECT * FROM stock WHERE vin = %s", (vin,))
+        row = cur.fetchone()
+        if row:
+            print(f"VIN: {row[0]}, Make: {row[1]}, Color: {row[2]}, Model: {row[3]}, Year: {row[4]}, Starting Price: {row[5]}, Is Sold: {row[6]}")
+        else:
+            print("No car found with that VIN.")
+    except psycopg2.Error as e:
+        print(f"\nError searching for car: {e}")
 
 def get_car_input():
     print("Enter the following information for car. If unkown, leave blank:")
@@ -425,7 +443,23 @@ def add_customer(first_name, last_name, email_address, phone_number):
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
 
+def list_customer():
+    try:
+        cur.execute("SELECT Customer_ID, First_Name, Last_Name, Email_Address, Phone_Number FROM customers")
+        rows = cur.fetchall()
+        if rows:
+            print(f"{'ID':<5} {'Name':<20} {'Email':<30} {'Phone':<15}")
+            print("-" * 70)
+            for row in rows:
+                print(f"{row[0]:<5} {row[1]} {row[2]:<20} {row[3]:<30} {row[4]:<15}")        
+        else:
+            print("No customers found.")
+    except psycopg2.Error as e:
+        print(f"\nError listing customers: {e}")
+
+
 def remove_customer():
+
     return
 #End Customer
 
