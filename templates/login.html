@@ -1,0 +1,225 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #ffc6c6;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            margin-top: 100px;
+            padding: 20px;
+            background-color: #ff5555;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .container h1 {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0069d9;
+        }
+
+        .mt-3 a {
+            color: #007bff;
+        }
+
+        .mt-3 a:hover {
+            color: #0069d9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mb-4">Login</h1>
+        <form method="post" action="/login">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p class="mt-3 text-center">Don't have an account? <a href="/create_account">Create one</a></p>
+    </div>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #222D32;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .login-box {
+            margin-top: 75px;
+            height: auto;
+            background: #1A2226;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
+        .form-control-label {
+            color: #d4a4a4;
+        }
+
+        .login-key {
+            height: 100px;
+            font-size: 80px;
+            line-height: 100px;
+            background: -webkit-linear-gradient(#27EF9F, #0DB8DE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-title {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #ECF0F5;
+        }
+
+        .login-form {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        input[type=text],
+        input[type=password] {
+            background-color: #1A2226;
+            border: none;
+            border-bottom: 2px solid #0DB8DE;
+            border-top: 0px;
+            border-radius: 0px;
+            font-weight: bold;
+            outline: 0;
+            margin-bottom: 20px;
+            padding-left: 0px;
+            color: #ECF0F5;
+        }
+
+        .login-bttm {
+            display: none;
+        }
+
+        .login-bttm input[type=checkbox] {
+            float: left;
+            margin-right: 10px;
+        }
+
+        .login-button {
+            float: right;
+            background-color: #0DB8DE;
+            color: #ECF0F5;
+            border: none;
+            border-radius: 2px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background-color: #27EF9F;
+        }
+
+        .login-bttm p {
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .login-bttm a {
+            color: #007BFF;
+        }
+
+        .login-bttm a:hover {
+            color: #0069D9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-key">
+                    <i class="fa fa-key" aria-hidden="true"></i>
+                </div>
+                <div class="col-lg-12 login-title">
+                    LOGIN
+                </div>
+
+                <div class="col-lg-12 login-form">
+                    <div class="col-lg-12 login-form">
+                        <form>
+                            <div class="form-group">
+                                <label class="form-control-label">USERNAME</label>
+                                <input type="text" class="form-control" placeholder="Enter your username">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">PASSWORD</label>
+                                <input type="password" class="form-control" placeholder="Enter your password">
+                            </div>
+                            <div class="login-bttm">
+                                <div class="checkbox float-left">
+                                    <label>
+                                        <input type="checkbox">Remember Me
+                                    </label>
+                                </div>
+                                <div class="forgot-password float-right">
+                                    <a href="#">Forgot Password?</a>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary login-button">LOGIN</button>
+                            </div>
+                            <div class="login-register">
+                                <p>Don't have an account? <a href="#">Register Here</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+        </div>
+    </div>
+</body>
+
+</html>
