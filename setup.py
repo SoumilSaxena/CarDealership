@@ -5,7 +5,7 @@ import binascii
 import os
 import re
 app = Flask(__name__)
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
 cur = conn.cursor()
 
 
