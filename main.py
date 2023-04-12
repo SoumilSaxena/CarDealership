@@ -3,6 +3,7 @@ import psycopg2
 import hashlib #used for password hash
 import binascii #used for password hash
 import os #used for password hash random character
+from setup import conn, cur
 # Global variables to store the logged-in user ID and their access level
 logged_in_user = None
 logged_in_user_level = None
@@ -103,7 +104,8 @@ def collapseComment():
 #conn = psycopg2.connect("dbname=postgres user=postgres password=?????")
 
 # Create a cursor object to interact with the database
-cur = conn.cursor()
+#conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+#cur = conn.cursor()
 
 
 def main():
