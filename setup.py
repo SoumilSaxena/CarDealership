@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import hashlib
 import binascii
@@ -46,6 +46,34 @@ def index():
 def view_cars():
     return "View Cars"
 
+@app.route('/menu')
+def menu():
+    if request.method == 'POST':
+        option = request.form['option']
+        if option == '1':
+            return redirect(url_for('add_car'))
+            #print("1. Add a car to inventory") #dealer
+        elif option == '2':
+            return redirect(url_for('add_customer'))
+            #print("2. Add a customer") #dealer
+        elif option == '3':
+            return redirect(url_for('add_employee'))
+            #print("3. Add an employee") #admin
+        elif option == '4':
+            return redirect(url_for('add_sale'))
+            #print("4. Record a sale") #dealer
+        elif option == '5':
+            return redirect(url_for('main'))
+            #print("5. Log out")
+    else:
+        options = [
+            {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
+            {'text': '2. Add a customer', 'url': url_for('add_customer')},
+            {'text': '3. Add an employee', 'url': url_for('add_employee')},
+            {'text': '4. Record a sale', 'url': url_for('add_sale')},
+            {'text': '5. Log out', 'url': url_for('main')}
+        ]
+        return render_template('menu.htl', options = options)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
