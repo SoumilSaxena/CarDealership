@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 import hashlib
 import binascii
 import os
 import re
 app = Flask(__name__)
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+app.secret_key = "abc123" # replace before project submission
+conn = psycopg2.connect("dbname=postgres user=postgres password=5E#asOL32")
 cur = conn.cursor()
 
 
@@ -36,8 +37,16 @@ def verify_password(stored_password, provided_password):
     computed_stored_password = binascii.hexlify(hash_password).decode('ascii')
     return stored_password == computed_stored_password
 
+def login_required(f):
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            return redirect(url_for('login'))
+    return wrap
 
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html')
 
@@ -77,39 +86,31 @@ def menu():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    message = ''
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # query user password hash
+
+        # query for info of entered user, including hashed password
         try:
-            cur.execute(
-                "SELECT password FROM users WHERE username = %s", (username,))
+            cur.execute("SELECT user_id,password,level FROM users WHERE username = %s", (username,))
         except psycopg2.Error as e:
             print(f"\nError selecting password in: {e}")
             return "Error"
-        stored_database_password = cur.fetchone()
-        if stored_database_password is None:
-            print("User not found")
-            return "User not found"
-        stored_database_password = stored_database_password[0]
-        if not verify_password(stored_database_password, password):
-            print("Incorrect username or password")
-            return "Incorrect username or password"
-        print("Password Verified")
-        try:
-            cur.execute(
-                "SELECT user_id FROM users WHERE username = %s AND password = %s", (username, stored_database_password))
-            user_id = cur.fetchone()
-            if user_id:
-                print("Login successful.")
-                return "Login successful"
-            else:
-                print("Incorrect username or password.")
-                return "Incorrect username or password"
-        except psycopg2.Error as e:
-            print(f"\nError logging in: {e}")
-            return "Error"
-    return render_template('login.html')
+        
+        cur_user = cur.fetchone()
+
+        # hash inputted passsword and check against query result
+        if cur_user:
+            stored_database_password = cur_user[1]
+            if verify_password(stored_database_password, password):
+                session['logged_in'] = True
+                session['user_id'] = cur_user[0]
+                session['level'] = cur_user[2]
+                print("Password Verified")
+                return render_template('index.html')
+        message = "Incorrect username or password"
+    return render_template('login.html', message = message)
 
 
 @app.route('/create_account', methods=['GET', 'POST'])
