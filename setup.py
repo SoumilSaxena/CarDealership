@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123" # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=")
+conn = psycopg2.connect("dbname=postgres user=postgres password=5E#asOL32")
 cur = conn.cursor()
 
 
@@ -51,9 +51,16 @@ def login_required(f):
 def index():
     return render_template('index.html')
 
-@app.route('/view_cars')
-def view_cars():
-    return "View Cars"
+@app.route('/cars')
+@login_required
+def cars():
+    try:
+        cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
+    except psycopg2.Error as e:
+        print(f"\nError selecting password in: {e}")
+        return redirect(url_for('index'))
+    data = cur.fetchall()
+    return render_template('cars.html', data = data)
 
 @app.route('/menu_dealer')
 def menu_dealer():
@@ -156,6 +163,7 @@ def menu_admin():
             {'text': '13. Log out', 'url': url_for('main')}
         ]
         return render_template('menu_admin.htl', options = options)
+
 @app.route('/menu')
 def menu():
     if request.method == 'POST':
@@ -231,6 +239,10 @@ def create_account():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        phone_number = request.form['phone_number']
+        email = request.form['email']
         level = 3 # All accounts have customer permissions by default. Employees should contact admin.
         password = hash_password(password)  # Password gets hashed
 
@@ -243,32 +255,17 @@ def create_account():
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
+            session['user_id'] = cur.fetchone()[0]
+            cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number, email) VALUES (%s, %s, %s, %s, %s)",
+                        (session['user_id'], first_name, last_name, phone_number, email))
             conn.commit()
             session['logged_in'] = True
-            session['user_id'] = cur.fetchone()[0]
             session['level'] = level
-            return redirect('/customer_details/' + str(session['user_id']))
+            return redirect(url_for('index'))
         except psycopg2.Error as e:
             return f"Error creating account: {e}"
     else:
         return render_template('create_account.html')
-
-@app.route('/customer_details/<int:user_id>', methods=['GET', 'POST'])
-@login_required
-def customer_details(user_id):
-    if request.method == 'POST':
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        phone_number = request.form['phone_number']
-        phone_number = formatPhone(phone_number)
-
-        cur.execute("INSERT INTO Customers (user_id, first_name, last_name, phone_number) VALUES (%s, %s, %s, %s)",
-                    (user_id, first_name, last_name, phone_number))
-        conn.commit()
-        return redirect('/')
-    else:
-        return render_template('customer_details.html', user_id=user_id)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
