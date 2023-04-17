@@ -25,10 +25,11 @@
             <ul class="navbar-nav ml-auto">
                 {% if session.logged_in %}
                     {% if session.level != None and session.level < 2 %}
-                    <li class="nav-item">
+                    
+                    {% endif %}
+                <li class="nav-item">
                         <a class="nav-link" href="/cars">View Cars</a>
                     </li>
-                    {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="/logout">Logout</a>
                 </li>

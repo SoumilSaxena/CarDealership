@@ -52,7 +52,6 @@ def index():
     return render_template('index.html')
 
 @app.route('/cars')
-@login_required
 def cars():
     try:
         cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
