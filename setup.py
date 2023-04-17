@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
+from functools import wraps
 import hashlib
 import binascii
 import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123" # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=5E#asOL32")
+conn = psycopg2.connect("dbname=postgres user=postgres password=")
 cur = conn.cursor()
 
 
@@ -38,6 +39,7 @@ def verify_password(stored_password, provided_password):
     return stored_password == computed_stored_password
 
 def login_required(f):
+    @wraps(f)
     def wrap(*args, **kwargs):
         if 'logged_in' in session:
             return f(*args, **kwargs)
@@ -46,10 +48,8 @@ def login_required(f):
     return wrap
 
 @app.route('/')
-@login_required
 def index():
     return render_template('index.html')
-
 
 @app.route('/view_cars')
 def view_cars():
@@ -87,6 +87,9 @@ def menu():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     message = ''
+    if 'logged_in' in session:
+        return redirect(url_for('index'))
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -108,39 +111,49 @@ def login():
                 session['user_id'] = cur_user[0]
                 session['level'] = cur_user[2]
                 print("Password Verified")
-                return render_template('index.html')
+                return redirect(url_for('index'))
         message = "Incorrect username or password"
     return render_template('login.html', message = message)
 
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('user_id', None)
+    session.pop('level', None)
+    return redirect(url_for('login'))
 
 @app.route('/create_account', methods=['GET', 'POST'])
 def create_account():
+    if 'logged_in' in session:
+        return redirect(url_for('index'))
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        level = request.form['level']
+        level = 3 # All accounts have customer permissions by default. Employees should contact admin.
         password = hash_password(password)  # Password gets hashed
 
         # Check if username or password already exists
-        cur.execute(
-            "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
+        cur.execute("SELECT user_id FROM Users WHERE username = %s", (username,))
         existing_user = cur.fetchone()
         if existing_user:
-            return "Error creating account: Username or password already exists."
+            return render_template('create_account.html', message = "Username or password already exists.")
 
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
             conn.commit()
-            user_id = cur.fetchone()[0]
-            return redirect('/customer_details/' + str(user_id))
+            session['logged_in'] = True
+            session['user_id'] = cur.fetchone()[0]
+            session['level'] = level
+            return redirect('/customer_details/' + str(session['user_id']))
         except psycopg2.Error as e:
             return f"Error creating account: {e}"
     else:
         return render_template('create_account.html')
 
-
 @app.route('/customer_details/<int:user_id>', methods=['GET', 'POST'])
+@login_required
 def customer_details(user_id):
     if request.method == 'POST':
         first_name = request.form['first_name']
