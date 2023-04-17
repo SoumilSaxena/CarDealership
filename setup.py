@@ -55,6 +55,107 @@ def index():
 def view_cars():
     return "View Cars"
 
+@app.route('/menu_dealer')
+def menu_dealer():
+    if request.method == 'POST':
+        option = request.form['option']
+        if option == '1':
+            return redirect(url_for('add_car'))
+            #print("1. Add a car to inventory") #dealer
+        elif option == '2':
+            return redirect(url_for('add_customer'))
+            #print("2. Add a customer") #dealer
+        elif option == '3':
+            return redirect(url_for('add_sale'))
+            #print("4. Record a sale") #dealer
+        elif option == '4':
+            return redirect(url_for('list_car_options'))
+            #List cars
+        elif option == '5':
+            return redirect(url_for('list_employees'))
+            #List employees
+        elif option == '6':
+            return redirect(url_for('list_customers'))
+            #List customers
+        elif option == '7':
+            return redirect(url_for('list_sales'))
+            #List sales
+        elif option == '8':
+            return redirect(url_for('main'))
+            #Return to home screen
+    else:
+        options = [
+            {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
+            {'text': '2. Add a customer', 'url': url_for('add_customer')},
+            {'text': '3. Record a sale', 'url': url_for('add_sale')},
+            {'text': '4. List the cars in stock', 'url': url_for('list_car_options')},
+            {'text': '5. List the employees', 'url': url_for('list_employees')},
+            {'text': '6. List the customers', 'url': url_for('list_customers')},
+            {'text': '7. List the sales', 'url': url_for('list_sales')},
+            {'text': '8. Log out', 'url': url_for('main')}
+        ]
+        return render_template('menu_dealer.htl', options = options)
+
+@app.route('/menu_admin')
+def menu_admin():
+    if request.method == 'POST':
+        option = request.form['option']
+        if option == '1':
+            return redirect(url_for('add_car'))
+            #print("1. Add a car to inventory") #dealer
+        elif option == '2':
+            return redirect(url_for('add_customer'))
+            #print("2. Add a customer") #dealer
+        elif option == '3':
+            return redirect(url_for('add_employee'))
+            #print("3. Add an employee") #admin
+        elif option == '4':
+            return redirect(url_for('add_sale'))
+            #print("4. Record a sale") #dealer
+        elif option == '5':
+            return redirect(url_for('remove_car'))
+            #print("5. Remove a car") 
+        elif option == '6':
+            return redirect(url_for('remove_employee'))
+            #Remove an employee
+        elif option == '7':
+            return redirect(url_for('remove_customer'))
+            #Remove a customer
+        elif option == '8':
+            return redirect(url_for('remove_sale'))
+            #Remove a sale
+        elif option == '9':
+            return redirect(url_for('list_car_options'))
+            #List cars
+        elif option == '10':
+            return redirect(url_for('list_employees'))
+            #List employees
+        elif option == '11':
+            return redirect(url_for('list_customers'))
+            #List customers
+        elif option == '12':
+            return redirect(url_for('list_sales'))
+            #List sales
+        elif option == '13':
+            return redirect(url_for('main'))
+            #Return to home screen
+    else:
+        options = [
+            {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
+            {'text': '2. Add a customer', 'url': url_for('add_customer')},
+            {'text': '3. Add an employee', 'url': url_for('add_employee')},
+            {'text': '4. Record a sale', 'url': url_for('add_sale')},
+            {'text': '5. Remove a car from stock', 'url': url_for('remove_car')},
+            {'text': '6. Remove an employee', 'url': url_for('remove_employee')},
+            {'text': '7. Remove a customer', 'url': url_for('remove_customer')},
+            {'text': '8. Remove a sale', 'url': url_for('remove_sale')},
+            {'text': '9. List the cars in stock', 'url': url_for('list_car_options')},
+            {'text': '10. List the employees', 'url': url_for('list_employees')},
+            {'text': '11. List the customers', 'url': url_for('list_customers')},
+            {'text': '12. List the sales', 'url': url_for('list_sales')},
+            {'text': '13. Log out', 'url': url_for('main')}
+        ]
+        return render_template('menu_admin.htl', options = options)
 @app.route('/menu')
 def menu():
     if request.method == 'POST':
