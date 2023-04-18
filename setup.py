@@ -7,17 +7,16 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
 cur = conn.cursor()
 
 
 def hash_password(password):
-    salt = hashlib.sha256(os.urandom(16)).hexdigest().encode('ascii')
-    hashed_password = hashlib.pbkdf2_hmac(
-        'sha256', password.encode('utf-8'), salt, 100000)
-    hashed_password = binascii.hexlify(hashed_password).decode('ascii')
-    hashed_password = salt.decode('ascii') + hashed_password
-    return hashed_password
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    hash_password = hashlib.pbkdf2_hmac(
+        'sha512', password.encode('utf-8'), salt, 200000)
+    hash_password = binascii.hexlify(hash_password)
+    return (salt + hash_password).decode('ascii')
 
 
 def formatPhone(num):
@@ -268,8 +267,8 @@ def add_car():
         cur.execute("INSERT INTO stock(vin, make, color, model, year, starting_price, is_sold) VALUES (%s, %s, %s,%s,%s,%s,%s)",
                     (vin, make, color, model, year, starting_price, False))
         conn.commit()
-
-        return "Car added to the database!"
+        print("Car added to the database!")
+        return redirect(url_for('index'))
 
     return render_template('add_car.html')
 
