@@ -6,8 +6,8 @@ import binascii
 import os
 import re
 app = Flask(__name__)
-app.secret_key = "abc123" # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=5E#asOL32")
+app.secret_key = "abc123"  # replace before project submission
+conn = psycopg2.connect("dbname=postgres user=postgres password=")
 cur = conn.cursor()
 
 
@@ -38,6 +38,7 @@ def verify_password(stored_password, provided_password):
     computed_stored_password = binascii.hexlify(hash_password).decode('ascii')
     return stored_password == computed_stored_password
 
+
 def login_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -47,19 +48,23 @@ def login_required(f):
             return redirect(url_for('login'))
     return wrap
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/cars')
 def cars():
     try:
-        cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
+        cur.execute(
+            "SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
     except psycopg2.Error as e:
         print(f"\nError selecting password in: {e}")
         return redirect(url_for('index'))
     data = cur.fetchall()
-    return render_template('cars.html', data = data)
+    return render_template('cars.html', data=data)
+
 
 @app.route('/menu_dealer')
 def menu_dealer():
@@ -67,40 +72,44 @@ def menu_dealer():
         option = request.form['option']
         if option == '1':
             return redirect(url_for('add_car'))
-            #print("1. Add a car to inventory") #dealer
+            # print("1. Add a car to inventory") #dealer
         elif option == '2':
             return redirect(url_for('add_customer'))
-            #print("2. Add a customer") #dealer
+            # print("2. Add a customer") #dealer
         elif option == '3':
             return redirect(url_for('add_sale'))
-            #print("4. Record a sale") #dealer
+            # print("4. Record a sale") #dealer
         elif option == '4':
             return redirect(url_for('list_car_options'))
-            #List cars
+            # List cars
         elif option == '5':
             return redirect(url_for('list_employees'))
-            #List employees
+            # List employees
         elif option == '6':
             return redirect(url_for('list_customers'))
-            #List customers
+            # List customers
         elif option == '7':
             return redirect(url_for('list_sales'))
-            #List sales
+            # List sales
         elif option == '8':
             return redirect(url_for('main'))
-            #Return to home screen
+            # Return to home screen
     else:
         options = [
             {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
             {'text': '2. Add a customer', 'url': url_for('add_customer')},
             {'text': '3. Record a sale', 'url': url_for('add_sale')},
-            {'text': '4. List the cars in stock', 'url': url_for('list_car_options')},
-            {'text': '5. List the employees', 'url': url_for('list_employees')},
-            {'text': '6. List the customers', 'url': url_for('list_customers')},
+            {'text': '4. List the cars in stock',
+                'url': url_for('list_car_options')},
+            {'text': '5. List the employees',
+                'url': url_for('list_employees')},
+            {'text': '6. List the customers',
+                'url': url_for('list_customers')},
             {'text': '7. List the sales', 'url': url_for('list_sales')},
             {'text': '8. Log out', 'url': url_for('main')}
         ]
-        return render_template('menu_dealer.htl', options = options)
+        return render_template('menu_dealer.htl', options=options)
+
 
 @app.route('/menu_admin')
 def menu_admin():
@@ -108,60 +117,67 @@ def menu_admin():
         option = request.form['option']
         if option == '1':
             return redirect(url_for('add_car'))
-            #print("1. Add a car to inventory") #dealer
+            # print("1. Add a car to inventory") #dealer
         elif option == '2':
             return redirect(url_for('add_customer'))
-            #print("2. Add a customer") #dealer
+            # print("2. Add a customer") #dealer
         elif option == '3':
             return redirect(url_for('add_employee'))
-            #print("3. Add an employee") #admin
+            # print("3. Add an employee") #admin
         elif option == '4':
             return redirect(url_for('add_sale'))
-            #print("4. Record a sale") #dealer
+            # print("4. Record a sale") #dealer
         elif option == '5':
             return redirect(url_for('remove_car'))
-            #print("5. Remove a car") 
+            #print("5. Remove a car")
         elif option == '6':
             return redirect(url_for('remove_employee'))
-            #Remove an employee
+            # Remove an employee
         elif option == '7':
             return redirect(url_for('remove_customer'))
-            #Remove a customer
+            # Remove a customer
         elif option == '8':
             return redirect(url_for('remove_sale'))
-            #Remove a sale
+            # Remove a sale
         elif option == '9':
             return redirect(url_for('list_car_options'))
-            #List cars
+            # List cars
         elif option == '10':
             return redirect(url_for('list_employees'))
-            #List employees
+            # List employees
         elif option == '11':
             return redirect(url_for('list_customers'))
-            #List customers
+            # List customers
         elif option == '12':
             return redirect(url_for('list_sales'))
-            #List sales
+            # List sales
         elif option == '13':
             return redirect(url_for('main'))
-            #Return to home screen
+            # Return to home screen
     else:
         options = [
             {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
             {'text': '2. Add a customer', 'url': url_for('add_customer')},
             {'text': '3. Add an employee', 'url': url_for('add_employee')},
             {'text': '4. Record a sale', 'url': url_for('add_sale')},
-            {'text': '5. Remove a car from stock', 'url': url_for('remove_car')},
-            {'text': '6. Remove an employee', 'url': url_for('remove_employee')},
-            {'text': '7. Remove a customer', 'url': url_for('remove_customer')},
+            {'text': '5. Remove a car from stock',
+                'url': url_for('remove_car')},
+            {'text': '6. Remove an employee',
+                'url': url_for('remove_employee')},
+            {'text': '7. Remove a customer',
+                'url': url_for('remove_customer')},
             {'text': '8. Remove a sale', 'url': url_for('remove_sale')},
-            {'text': '9. List the cars in stock', 'url': url_for('list_car_options')},
-            {'text': '10. List the employees', 'url': url_for('list_employees')},
-            {'text': '11. List the customers', 'url': url_for('list_customers')},
+            {'text': '9. List the cars in stock',
+                'url': url_for('list_car_options')},
+            {'text': '10. List the employees',
+                'url': url_for('list_employees')},
+            {'text': '11. List the customers',
+                'url': url_for('list_customers')},
             {'text': '12. List the sales', 'url': url_for('list_sales')},
             {'text': '13. Log out', 'url': url_for('main')}
         ]
-        return render_template('menu_admin.htl', options = options)
+        return render_template('menu_admin.htl', options=options)
+
 
 @app.route('/menu')
 def menu():
@@ -169,16 +185,16 @@ def menu():
         option = request.form['option']
         if option == '1':
             return redirect(url_for('add_car'))
-            #print("1. Add a car to inventory") #dealer
+            # print("1. Add a car to inventory") #dealer
         elif option == '2':
             return redirect(url_for('add_customer'))
-            #print("2. Add a customer") #dealer
+            # print("2. Add a customer") #dealer
         elif option == '3':
             return redirect(url_for('add_employee'))
-            #print("3. Add an employee") #admin
+            # print("3. Add an employee") #admin
         elif option == '4':
             return redirect(url_for('add_sale'))
-            #print("4. Record a sale") #dealer
+            # print("4. Record a sale") #dealer
         elif option == '5':
             return redirect(url_for('main'))
             #print("5. Log out")
@@ -190,7 +206,8 @@ def menu():
             {'text': '4. Record a sale', 'url': url_for('add_sale')},
             {'text': '5. Log out', 'url': url_for('main')}
         ]
-        return render_template('menu.htl', options = options)
+        return render_template('menu.htl', options=options)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -204,11 +221,12 @@ def login():
 
         # query for info of entered user, including hashed password
         try:
-            cur.execute("SELECT user_id,password,level FROM users WHERE username = %s", (username,))
+            cur.execute(
+                "SELECT user_id,password,level FROM users WHERE username = %s", (username,))
         except psycopg2.Error as e:
             print(f"\nError selecting password in: {e}")
             return "Error"
-        
+
         cur_user = cur.fetchone()
 
         # hash inputted passsword and check against query result
@@ -221,7 +239,8 @@ def login():
                 print("Password Verified")
                 return redirect(url_for('index'))
         message = "Incorrect username or password"
-    return render_template('login.html', message = message)
+    return render_template('login.html', message=message)
+
 
 @app.route('/logout')
 def logout():
@@ -229,6 +248,32 @@ def logout():
     session.pop('user_id', None)
     session.pop('level', None)
     return redirect(url_for('login'))
+
+
+@app.route('/add_car', methods=['GET', 'POST'])
+@login_required
+def add_car():
+    if request.method == 'POST':
+        vin = request.form['vin']
+        make = request.form['make']
+        color = request.form['color']
+        model = request.form['model']
+        year = request.form['year']
+        starting_price = request.form['starting_price']
+
+        level = session.get('level')
+        if level not in [0, 1, 2]:
+            return "You don't have permission to add cars."
+
+        cur.execute("INSERT INTO stock(vin, make, color, model, year, starting_price, is_sold) VALUES (%s, %s, %s,%s,%s,%s,%s)",
+                    (vin, make, color, model, year, starting_price, False))
+        conn.commit()
+        conn.close()
+
+        return "Car added to the database!"
+
+    return render_template('add_car.html')
+
 
 @app.route('/create_account', methods=['GET', 'POST'])
 def create_account():
@@ -242,20 +287,22 @@ def create_account():
         last_name = request.form['last_name']
         phone_number = request.form['phone_number']
         email = request.form['email']
-        level = 3 # All accounts have customer permissions by default. Employees should contact admin.
+        # All accounts have customer permissions by default. Employees should contact admin.
+        level = 3
         password = hash_password(password)  # Password gets hashed
 
         # Check if username or password already exists
-        cur.execute("SELECT user_id FROM Users WHERE username = %s", (username,))
+        cur.execute(
+            "SELECT user_id FROM Users WHERE username = %s", (username,))
         existing_user = cur.fetchone()
         if existing_user:
-            return render_template('create_account.html', message = "Username or password already exists.")
+            return render_template('create_account.html', message="Username or password already exists.")
 
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
             session['user_id'] = cur.fetchone()[0]
-            cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number, email) VALUES (%s, %s, %s, %s, %s)",
+            cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number, email_address) VALUES (%s, %s, %s, %s, %s)",
                         (session['user_id'], first_name, last_name, phone_number, email))
             conn.commit()
             session['logged_in'] = True
@@ -265,6 +312,7 @@ def create_account():
             return f"Error creating account: {e}"
     else:
         return render_template('create_account.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
