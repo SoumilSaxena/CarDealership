@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
 cur = conn.cursor()
 
 
@@ -268,7 +268,6 @@ def add_car():
         cur.execute("INSERT INTO stock(vin, make, color, model, year, starting_price, is_sold) VALUES (%s, %s, %s,%s,%s,%s,%s)",
                     (vin, make, color, model, year, starting_price, False))
         conn.commit()
-        conn.close()
 
         return "Car added to the database!"
 
