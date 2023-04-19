@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Employees</h1>
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">Employee ID</th>
+            <th scope="col">User ID</th>
+            <th scope="col">Birthday</th>
+            <th scope="col">Salary</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">Role ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{item[0]}}</td>
+            <td>{{item[1]}}</td>
+            <td>{{item[2]}}</td>
+            <td>{{item[3]}}</td>
+            <td>{{item[4]}}</td>
+            <td>{{item[5]}}</td>
+            <td>{{item[6]}}</td>
+            <td>{{item[7]}}</td>
+        </tr>
+        {% endfor %}
+     </tbody>
+</table>
+{% endblock %}
