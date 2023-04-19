@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Add New Employee Account</h1>
+<form method="post" action="/add_employee">
+    <div class="err-msg">{{ message }}</div>
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first-name" name="first_name" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last-name" name="last_name" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="birthdate">Birthdate:</label>
+        <input type="date" id="birthdate" name="birthdate" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="salary">Salary:</label>
+        <input type="number" id="salary" name="salary" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="level">Roll ID:</label>
+        <select id="level" name="level" required class="form-control">
+            <option value="1">Dealer</option>
+            <option value="2">Engineer</option>
+            <option value="4">Mechanic</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+</form>
+{% endblock %}

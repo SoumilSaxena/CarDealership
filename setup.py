@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
 cur = conn.cursor()
 
 
@@ -128,7 +128,7 @@ def menu_admin():
             # print("4. Record a sale") #dealer
         elif option == '5':
             return redirect(url_for('remove_car'))
-            #print("5. Remove a car")
+            # print("5. Remove a car")
         elif option == '6':
             return redirect(url_for('remove_employee'))
             # Remove an employee
@@ -196,7 +196,7 @@ def menu():
             # print("4. Record a sale") #dealer
         elif option == '5':
             return redirect(url_for('main'))
-            #print("5. Log out")
+            # print("5. Log out")
     else:
         options = [
             {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
@@ -271,6 +271,41 @@ def add_car():
         return redirect(url_for('index'))
 
     return render_template('add_car.html')
+
+
+@app.route('/add_employee', methods=['GET', 'POST'])
+@login_required
+def add_employee():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        birthdate = request.form['birthdate']
+        address = request.form['address']
+        salary = request.form['salary']
+        level = request.form['level']
+        password = hash_password(password)  # Password gets hashed
+
+        # Check if username or password already exists
+        cur.execute(
+            "SELECT user_id FROM Users WHERE username = %s", (username,))
+        existing_user = cur.fetchone()
+        if existing_user:
+            return render_template('add_employee.html', message="Username already exists.")
+
+        try:
+            cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
+                        (username, password, level))
+            user_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO employees(user_id, first_name, last_name, Birthdate, salary, address, role_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                        (user_id, first_name, last_name, birthdate, salary, address, level))
+            conn.commit()
+            return redirect(url_for('index'))
+        except psycopg2.Error as e:
+            return f"Error creating account: {e}"
+    else:
+        return render_template('add_employee.html')
 
 
 @app.route('/create_account', methods=['GET', 'POST'])
