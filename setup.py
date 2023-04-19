@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+conn = psycopg2.connect("dbname=Car user=postgres password=Coolsoccer456")
 cur = conn.cursor()
 
 
@@ -52,6 +52,15 @@ def login_required(f):
 def index():
     return render_template('index.html')
 
+@app.route('/employees')
+def employees():
+    try:
+        cur.execute("SELECT * FROM Employees")
+    except psycopg2.Error as e:
+        print(f"\nError occured: {e}")
+        return redirect(url_for('index'))
+    emps = cur.fetchall()
+    return render_template('employees.html', data=emps)
 
 @app.route('/cars')
 def cars():
@@ -248,6 +257,50 @@ def logout():
     session.pop('level', None)
     return redirect(url_for('login'))
 
+@app.route('/add_sale', methods = ['GET', 'POST'])
+@login_required
+def add_sale():
+    if request.method == 'POST':
+        vin = request.form['vin']
+        custID = request.form['Customer ID']
+        price = request.form['Selling price']
+        dealer = request.form['Dealer']
+        loc = request.form['Location']
+
+        # level = session.get('level')
+        # if level not in [0, 1, 2]:
+        #     return "You don't have permission to add cars."
+
+        cur.execute("INSERT INTO Sales(vin, customer_ID, selling_price, dealer, location) VALUES (%s, %s, %s,%s,%s)",
+                    (vin, custID, price, dealer, loc))
+        conn.commit()
+        print("Sale recorded!")
+        return redirect(url_for('index'))
+
+    return render_template('add_sale.html')
+
+@app.route('/add_employee', methods = ['GET', 'POST'])
+@login_required
+def add_employee():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        level = request.form['level']
+        model = request.form['model']
+        year = request.form['year']
+        starting_price = request.form['starting_price']
+
+        level = session.get('level')
+        if level not in [0, 1, 2]:
+            return "You don't have permission to add cars."
+
+        cur.execute("INSERT INTO stock(vin, make, color, model, year, starting_price, is_sold) VALUES (%s, %s, %s,%s,%s,%s,%s)",
+                    (vin, make, color, model, year, starting_price, False))
+        conn.commit()
+        print("Car added to the database!")
+        return redirect(url_for('index'))
+
+    return render_template('add_car.html')
 
 @app.route('/add_car', methods=['GET', 'POST'])
 @login_required

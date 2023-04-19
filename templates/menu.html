@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <head>
+    <title>Menu</title>
+  </head>
+  <body>
+    <h1>Select an option</h1>
+    <ul>
+      <li><a href="{{ url_for('add_car') }}">Add a car</a></li>
+      {% if user_permission == 'admin' %}
+      <li><a href="{{ url_for('add_customer') }}">Add a customer</a></li>
+      {% endif %}
+      <li><a href="{{ url_for('add_employee') }}">Add an employee</a></li>
+      <li><a href="{{ url_for('add_sale') }}">Add a sale</a></li>
+      <li><a href="{{ url_for('remove_car') }}">Remove a car from stock</a></li>
+      <li><a href="{{ url_for('remove_employee') }}">Remove an employee</a></li>
+      <li><a href="{{ url_for('remove_customer') }}">Remove a customer</a></li>
+      <li><a href="{{ url_for('remove_sale') }}">Remove a sale</a></li>
+      <li><a href="{{ url_for('list_car_options') }}">List the cars in stock</a></li>
+      <li><a href="{{ url_for('list_employees') }}">List the employees</a></li>
+      <li><a href="{{ url_for('list_customers') }}">List the customers</a></li>
+      <li><a href="{{ url_for('list_sales') }}">List the sales</a></li>
+      <li><a href="{{ url_for('main') }}">Log out</a></li>
+    </ul>
+  </body>
+{% endblock %}
