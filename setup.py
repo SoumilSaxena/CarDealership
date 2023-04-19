@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
 cur = conn.cursor()
 
 
@@ -281,30 +281,6 @@ def add_sale():
         return redirect(url_for('index'))
 
     return render_template('add_sale.html')
-
-
-@app.route('/add_employee', methods=['GET', 'POST'])
-@login_required
-def add_employee():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        level = request.form['level']
-        model = request.form['model']
-        year = request.form['year']
-        starting_price = request.form['starting_price']
-
-        level = session.get('level')
-        if level not in [0, 1, 2]:
-            return "You don't have permission to add cars."
-
-        cur.execute("INSERT INTO stock(vin, make, color, model, year, starting_price, is_sold) VALUES (%s, %s, %s,%s,%s,%s,%s)",
-                    (vin, make, color, model, year, starting_price, False))
-        conn.commit()
-        print("Car added to the database!")
-        return redirect(url_for('index'))
-
-    return render_template('add_car.html')
 
 
 @app.route('/add_car', methods=['GET', 'POST'])
