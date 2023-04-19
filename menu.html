@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+{% extends 'layout.html' %}
+{% block content %}
   <head>
     <title>Menu</title>
   </head>
@@ -23,4 +23,4 @@
       <li><a href="{{ url_for('main') }}">Log out</a></li>
     </ul>
   </body>
-</html>
+{% endblock %}
