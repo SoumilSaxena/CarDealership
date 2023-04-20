@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+conn = psycopg2.connect("dbname=Car user=postgres password=Coolsoccer456")
 cur = conn.cursor()
 
 
@@ -63,6 +63,15 @@ def employees():
     emps = cur.fetchall()
     return render_template('employees.html', data=emps)
 
+@app.route('/customers')
+def customers():
+    try:
+        cur.execute("SELECT * FROM Customers")
+    except psycopg2.Error as e:
+        print(f"\nError occured: {e}")
+        return redirect(url_for('index'))
+    cust = cur.fetchall()
+    return render_template('customers.html', data=cust)
 
 @app.route('/cars')
 def cars():
