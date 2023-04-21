@@ -13,7 +13,7 @@
 
 <div class="card collapse" id="filters">
     <div class="card-body">
-        <form method="POST">
+        <form method="GET" action="{{ url_for('car_filter') }}">
             <div class="form-group row">
                 <div class="col-sm-3">
                     <label class="form-control-label">VIN</label>

@@ -72,46 +72,51 @@ def customers():
     cust = cur.fetchall()
     return render_template('customers.html', data=cust)
 
-@app.route('/cars', methods=['GET', 'POST'])
+@app.route('/cars')
+@login_required
 def cars():
-    if request.method == 'POST':
-        try:
-            query = "SELECT vin,make,color,model,year,starting_price FROM stock WHERE 1=1"
-            params = []
-            if request.form['vin'] != '':
-                query += " AND vin = %s"
-                params.append(request.form['vin'])
-            if request.form['make'] != '':
-                query += " AND make = %s"
-                params.append(request.form['make'])
-            if request.form['color'] != '':
-                query += " AND color = %s"
-                params.append(request.form['color'])
-            if request.form['model'] != '':
-                query += " AND model = %s"
-                params.append(request.form['model'])
-            if request.form['year'] != '':
-                query += " AND year = %s"
-                params.append(request.form['year'])
-            if request.form['price_low'] != '':
-                query += " AND starting_price >= %s"
-                params.append(request.form['price_low'])
-            if request.form['price_high'] != '':
-                query += " AND starting_price <= %s"
-                params.append(request.form['price_high'])
-            if 'sold' not in request.form:
-                query += " AND is_sold = false"
-            cur.execute(query, params)
-        except psycopg2.Error as e:
-            print(f"\nError loading cars in: {e}")
-            return render_template('cars.html', message="An unexpected error occurred.")
-    else:
-        try:
-            cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
-        except:
-            print(f"\nError loading cars: {e}")
-            return render_template('cars.html', message="An unexpected error occurred.")
-    data = cur.fetchall()
+    try:
+        cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
+        data = cur.fetchall()
+    except psycopg2.Error as e:
+        print(f"\nError loading cars: {e}")
+        return render_template('cars.html', message="An unexpected error occurred.")
+    return render_template('cars.html', data=data)
+
+@app.route('/car_filter')
+@login_required
+def car_filter():
+    try:
+        query = "SELECT vin,make,color,model,year,starting_price FROM stock WHERE 1=1"
+        params = []
+        if request.args['vin'] != '':
+            query += " AND vin = %s"
+            params.append(request.args['vin'])
+        if request.args['make'] != '':
+            query += " AND make = %s"
+            params.append(request.args['make'])
+        if request.args['color'] != '':
+            query += " AND color = %s"
+            params.append(request.args['color'])
+        if request.args['model'] != '':
+            query += " AND model = %s"
+            params.append(request.args['model'])
+        if request.args['year'] != '':
+            query += " AND year = %s"
+            params.append(request.args['year'])
+        if request.args['price_low'] != '':
+            query += " AND starting_price >= %s"
+            params.append(request.args['price_low'])
+        if request.args['price_high'] != '':
+            query += " AND starting_price <= %s"
+            params.append(request.args['price_high'])
+        if 'sold' not in request.args:
+            query += " AND is_sold = false"
+        cur.execute(query, params)
+        data = cur.fetchall()
+    except psycopg2.Error as e:
+        print(f"\nError loading cars in: {e}")
+        return render_template('cars.html', message="An unexpected error occurred.")
     return render_template('cars.html', data=data)
 
 @app.route('/menu')
@@ -142,7 +147,8 @@ def menu():
             {'text': '5. Log out', 'url': url_for('main')}
         ]
         return render_template('menu.htl', options=options)
-
+    data = cur.fetchall()
+    return render_template('cars.html', data=data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
