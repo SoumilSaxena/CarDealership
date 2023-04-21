@@ -76,7 +76,7 @@ def customers():
 @login_required
 def cars():
     try:
-        cur.execute("SELECT vin,make,color,model,year,starting_price FROM stock WHERE is_sold = false")
+        cur.execute("SELECT vin,make,color,model,year,starting_price,is_sold FROM stock WHERE is_sold = false")
         data = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars: {e}")
@@ -87,7 +87,7 @@ def cars():
 @login_required
 def car_filter():
     try:
-        query = "SELECT vin,make,color,model,year,starting_price FROM stock WHERE 1=1"
+        query = "SELECT vin,make,color,model,year,starting_price,is_sold FROM stock WHERE 1=1"
         params = []
         if request.args['vin'] != '':
             query += " AND vin = %s"
@@ -112,12 +112,19 @@ def car_filter():
             params.append(request.args['price_high'])
         if 'sold' not in request.args:
             query += " AND is_sold = false"
-        cur.execute(query, params)
         data = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars in: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
     return render_template('cars.html', data=data)
+
+@app.route('/mark_sold', methods=['GET', 'POST'])
+@login_required
+def mark_sold():
+    if request.method == 'POST':
+        return render_template('cars.html')
+
+    return render_template('mark_sold.html')
 
 @app.route('/menu')
 def menu():
@@ -149,46 +156,6 @@ def menu():
         return render_template('menu.htl', options=options)
     data = cur.fetchall()
     return render_template('cars.html', data=data)
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    message = ''
-    if 'logged_in' in session:
-        return redirect(url_for('index'))
-
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # query for info of entered user, including hashed password
-        try:
-            cur.execute(
-                "SELECT user_id,password,level FROM users WHERE username = %s", (username,))
-        except psycopg2.Error as e:
-            print(f"\nError selecting password in: {e}")
-            return "Error"
-
-        cur_user = cur.fetchone()
-
-        # hash inputted passsword and check against query result
-        if cur_user:
-            stored_database_password = cur_user[1]
-            if verify_password(stored_database_password, password):
-                session['logged_in'] = True
-                session['user_id'] = cur_user[0]
-                session['level'] = cur_user[2]
-                print("Password Verified")
-                return redirect(url_for('index'))
-        message = "Incorrect username or password"
-    return render_template('login.html', message=message)
-
-
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    session.pop('user_id', None)
-    session.pop('level', None)
-    return redirect(url_for('login'))
 
 
 @app.route('/add_sale', methods=['GET', 'POST'])
@@ -272,6 +239,46 @@ def add_employee():
         return render_template('add_employee.html')
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    message = ''
+    if 'logged_in' in session:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # query for info of entered user, including hashed password
+        try:
+            cur.execute(
+                "SELECT user_id,password,level FROM users WHERE username = %s", (username,))
+        except psycopg2.Error as e:
+            print(f"\nError selecting password in: {e}")
+            return render_template('login.html', message="Error. Please contact an administrator.")
+
+        cur_user = cur.fetchone()
+
+        # hash inputted passsword and check against query result
+        if cur_user:
+            stored_database_password = cur_user[1]
+            if verify_password(stored_database_password, password):
+                session['logged_in'] = True
+                session['user_id'] = cur_user[0]
+                session['level'] = cur_user[2]
+                print("Password Verified")
+                return redirect(url_for('index'))
+        message = "Incorrect username or password"
+    return render_template('login.html', message=message)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('user_id', None)
+    session.pop('level', None)
+    return redirect(url_for('login'))
+
 @app.route('/create_account', methods=['GET', 'POST'])
 def create_account():
     if 'logged_in' in session:
@@ -279,14 +286,13 @@ def create_account():
 
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password']
+        password = hash_password(request.form['password'])
         first_name = request.form['first_name']
         last_name = request.form['last_name']
-        phone_number = request.form['phone_number']
+        phone_number = formatPhone(request.form['phone_number'])
         email = request.form['email']
         # All accounts have customer permissions by default. Employees should contact admin.
         level = 3
-        password = hash_password(password)  # Password gets hashed
 
         # Check if username or password already exists
         cur.execute(
@@ -306,7 +312,8 @@ def create_account():
             session['level'] = level
             return redirect(url_for('index'))
         except psycopg2.Error as e:
-            return f"Error creating account: {e}"
+            print(f"Error creating account: {e}")
+            return render_template('create_account.html', message="Error. Please contact an administrator.")
     else:
         return render_template('create_account.html')
 

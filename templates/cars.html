@@ -67,18 +67,32 @@
             <th scope="col">Color</th>
             <th scope="col">Model</th>
             <th scope="col">Year</th>
-            <th scope="col">Price</th>
+            <th scope="col">Starting Price</th>
+            <th scope="col">Options</th>
         </tr>
     </thead>
     <tbody>
         {% for item in data %}
         <tr>
-            <td width="300">{{item[0]}}</td>
+            <td width="250">{{item[0]}}</td>
             <td width="200">{{item[1]}}</td>
-            <td width="200">{{item[2]}}</td>
-            <td width="150">{{item[3]}}</td>
-            <td width="150">{{item[4]}}</td>
-            <td>{{item[5]}}</td>
+            <td width="120">{{item[2]}}</td>
+            <td width="140">{{item[3]}}</td>
+            <td width="120">{{item[4]}}</td>
+            <td width="140">{{item[5]}}</td>
+            <td>
+                {% if item[6] == True %}
+                    <button class="btn btn-outline-secondary" disabled>Sold</button>
+                {% else %}
+                    {% if session.level < 3 %}
+                        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#markSoldModal">Mark Sold</button>
+                        {% include 'mark_sold.html' %}
+                    {% else %}
+                        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#buyCarModal">Buy</button>
+                        {% include 'add_car.html' %}
+                    {% endif %}
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>

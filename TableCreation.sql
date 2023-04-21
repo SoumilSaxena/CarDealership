@@ -60,4 +60,4 @@ CREATE TABLE Sales(
 );
 
 INSERT INTO Roles(Role_ID,Description)
-VALUES(0,'Admin'),(1,'Dealer'),(2,'Engineer');
+VALUES(0,'Admin'),(1,'Dealer'),(2,'Engineer'),(3,'Customer');
