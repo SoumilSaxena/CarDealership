@@ -1,26 +1,46 @@
-{% extends 'layout.html' %}
+<!-- exists as modal window -->
+<p>
+    <button class="btn btn-success mt-2" data-toggle="modal" data-target="#addCarModal">Add New</button>
+</p>
 
-{% block content %}
-<h1>Add a Car</h1>
-<form method="POST" action="{{ url_for('add_car') }}">
-    <label for="vin">VIN:</label>
-    <input type="text" id="vin" name="vin" required><br>
-
-    <label for="make">Make:</label>
-    <input type="text" id="make" name="make" required><br>
-
-    <label for="color">Color:</label>
-    <input type="text" id="color" name="color" required><br>
-
-    <label for="model">Model:</label>
-    <input type="text" id="model" name="model" required><br>
-
-    <label for="year">Year:</label>
-    <input type="number" id="year" name="year" required><br>
-
-    <label for="starting_price">Starting Price:</label>
-    <input type="number" id="starting_price" name="starting_price" required><br>
-
-    <input type="submit" value="Add Car">
-</form>
-{% endblock %}
+<div id="addCarModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Car</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" class="form-horizontal" action="{{ url_for('add_car') }}">
+                    <div class="form-group">
+                        <label for="vin" class="control-label mb-0">VIN:</label>
+                        <input type="text" class="form-control" name="vin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="make" class="control-label mb-0">Make:</label>
+                        <input type="text" class="form-control" name="make" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="color" class="control-label mb-0">Color:</label>
+                        <input type="text" class="form-control" name="color" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model" class="control-label mb-0">Model:</label>
+                        <input type="text" class="form-control" name="model" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="year" class="control-label mb-0">Year:</label>
+                        <input type="number" class="form-control" name="year" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="starting_price" class="control-label mb-0">Starting Price:</label>
+                        <input type="number" class="form-control" name="starting_price" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Add Car</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
