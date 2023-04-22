@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -137,7 +137,7 @@ def mark_sold():
         try:
             cur.execute("INSERT INTO sales(vin,customer_id,selling_price,dealer,location) VALUES(%s, %s, %s, %s, %s)",
                         (vin,customer,price,session['employee_id'],location))
-            cur.execute("UPDATE stock SET is_sold = TRUE WHERE vin = %s", (vin,)) # this part should be database trigger tbh
+            #cur.execute("UPDATE stock SET is_sold = TRUE WHERE vin = %s", (vin,)) # this part should be database trigger tbh
             conn.commit()
             return redirect(url_for('cars'))
         except psycopg2.Error as e:

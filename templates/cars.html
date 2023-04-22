@@ -8,7 +8,7 @@
 </div>
 
 {% if session.level == 0 %}
-    {% include 'add_car.html' %}
+{% include 'add_car.html' %}
 {% endif %}
 
 <div class="card collapse" id="filters">
@@ -82,17 +82,17 @@
             <td width="140">{{item[5]}}</td>
             <td>
                 {% if item[6] == True %}
-                    <button class="btn btn-outline-secondary" disabled>Sold</button>
+                <button class="btn btn-outline-secondary" disabled>Sold</button>
                 {% else %}
-                    {% if session.level < 3 %}
-                        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#markSoldModal">Mark Sold</button>
-                        <input type="hidden" name="VIN" value="{{ item[0] }}">
-                        {% include 'mark_sold.html' %}
+                {% if session.level < 3 %} <button class="btn btn-outline-secondary" data-toggle="modal"
+                    data-target="#markSoldModal">Mark Sold</button>
+                    <input type="hidden" name="VIN" value="{{ item[0] }}">
+                    {% include 'mark_sold.html' %}
                     {% else %}
-                        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#buyCarModal">Buy</button>
-                        {% include 'add_car.html' %}
+                    <button class="btn btn-outline-secondary" data-toggle="modal"
+                        data-target="#buyCarModal">Buy</button>
                     {% endif %}
-                {% endif %}
+                    {% endif %}
             </td>
         </tr>
         {% endfor %}

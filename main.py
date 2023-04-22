@@ -153,6 +153,8 @@ def create_account():
     level = input("Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer): ")
     password = hash_password(password) #Password gets hashed
     # Check if username or password already exists
+    conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+    cur = conn.cursor()
     cur.execute(
         "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
     existing_user = cur.fetchone()
@@ -163,11 +165,23 @@ def create_account():
         cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id", (username, password, level))
         user_id = cur.fetchone()[0]
         print(f"\nAccount created successfully. Your user ID is {user_id}.")
+        print(level)
         conn.commit()
+        if level == '0' or level == '1' or level == '2':
+            first_name = input("Enter first name: ")
+            last_name = input("Enter last name: ")
+            address = input("Enter address: ")
+            salary = input("Enter salary: ")
+            birthdate = input("Enter birthday (date): ")
+            level = int(level)
+            cur.execute("INSERT INTO employees(user_id, first_name, last_name, Birthdate, salary, address, role_id) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                            (user_id, first_name, last_name, birthdate, salary, address, level))
+            conn.commit()
+            print("\nAdded to employees.")
     except psycopg2.Error as e:
         print(f"\nError creating account: {e}")
     if level == 0 or level == 1 or level == 2:
-        add_employee()
+        pass
     elif level == 3:
         # Insert customer details
         add_customer()
