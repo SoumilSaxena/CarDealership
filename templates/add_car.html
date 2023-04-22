@@ -11,7 +11,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form method="POST" class="form-horizontal" action="{{ url_for('add_car') }}">
+                <form method="POST" action="{{ url_for('add_car') }}">
                     <div class="form-group">
                         <label for="vin" class="control-label mb-0">VIN:</label>
                         <input type="text" class="form-control" name="vin" required>

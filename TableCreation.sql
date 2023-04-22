@@ -7,7 +7,8 @@ CREATE TABLE Users(
 
 CREATE TABLE Locations(
 	Location_ID serial PRIMARY KEY,
-	Address varchar(255) UNIQUE NOT NULL
+	Address varchar(255) UNIQUE NOT NULL,
+	City varchar(255) NOT NULL
 ); 
 
 -- Is_Sold is redundant data given the existence of a sales table; a bool attribute here is easier to query 

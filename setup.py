@@ -78,10 +78,12 @@ def cars():
     try:
         cur.execute("SELECT vin,make,color,model,year,starting_price,is_sold FROM stock WHERE is_sold = false")
         data = cur.fetchall()
+        cur.execute("SELECT location_id, city FROM locations")
+        locations = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
-    return render_template('cars.html', data=data)
+    return render_template('cars.html', data=data, locations=locations)
 
 @app.route('/car_filter')
 @login_required
@@ -89,6 +91,7 @@ def car_filter():
     try:
         query = "SELECT vin,make,color,model,year,starting_price,is_sold FROM stock WHERE 1=1"
         params = []
+
         if request.args['vin'] != '':
             query += " AND vin = %s"
             params.append(request.args['vin'])
@@ -112,18 +115,34 @@ def car_filter():
             params.append(request.args['price_high'])
         if 'sold' not in request.args:
             query += " AND is_sold = false"
+
+        cur.execute(query, params)
         data = cur.fetchall()
+
+        cur.execute("SELECT location_id, city FROM locations")
+        locations = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars in: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
-    return render_template('cars.html', data=data)
+    return render_template('cars.html', data=data, locations=locations)
 
 @app.route('/mark_sold', methods=['GET', 'POST'])
 @login_required
 def mark_sold():
     if request.method == 'POST':
-        return render_template('cars.html')
-
+        vin = request.form['vin']
+        customer = request.form['customer_id']
+        price = request.form['selling_price']
+        location = request.form['location'] if request.form['location'] != "Choose location" else None
+        try:
+            cur.execute("INSERT INTO sales(vin,customer_id,selling_price,dealer,location) VALUES(%s, %s, %s, %s, %s)",
+                        (vin,customer,price,session['employee_id'],location))
+            cur.execute("UPDATE stock SET is_sold = TRUE WHERE vin = %s", (vin,)) # this part should be database trigger tbh
+            conn.commit()
+            return redirect(url_for('cars'))
+        except psycopg2.Error as e:
+            print(f"\nError: {e}")
+            return render_template('cars.html', message="Unexpected error.")
     return render_template('mark_sold.html')
 
 @app.route('/menu')
@@ -263,10 +282,23 @@ def login():
         if cur_user:
             stored_database_password = cur_user[1]
             if verify_password(stored_database_password, password):
+                if (cur_user[2] < 3):
+                    try:
+                        cur.execute("SELECT employee_id FROM employees WHERE user_id = %s", (cur_user[0],))
+                        session['employee_id'] = cur.fetchone()[0]
+                    except psycopg2.Error as e:
+                        print(f"\nError: {e}")
+                        return render_template('login.html', message="Unexpected error.")
+                else:
+                    try:
+                        cur.execute("SELECT customer_id FROM customers WHERE user_id = %s", (cur_user[0],))
+                        session['customer_id'] = cur.fetchone()[0]
+                    except psycopg2.Error as e:
+                        print(f"\nError: {e}")
+                        return render_template('login.html', message="Unexpected error.")
                 session['logged_in'] = True
                 session['user_id'] = cur_user[0]
                 session['level'] = cur_user[2]
-                print("Password Verified")
                 return redirect(url_for('index'))
         message = "Incorrect username or password"
     return render_template('login.html', message=message)
@@ -277,6 +309,8 @@ def logout():
     session.pop('logged_in', None)
     session.pop('user_id', None)
     session.pop('level', None)
+    session.pop('employee_id', None)
+    session.pop('customer_id', None)
     return redirect(url_for('login'))
 
 @app.route('/create_account', methods=['GET', 'POST'])
@@ -305,9 +339,10 @@ def create_account():
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
             session['user_id'] = cur.fetchone()[0]
-            cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number, email_address) VALUES (%s, %s, %s, %s, %s)",
+            cur.execute("INSERT INTO Customers(user_id, first_name, last_name, phone_number, email_address) VALUES (%s, %s, %s, %s, %s) returning customer_id",
                         (session['user_id'], first_name, last_name, phone_number, email))
             conn.commit()
+            session['customer_id'] = cur.fetchone()[0]
             session['logged_in'] = True
             session['level'] = level
             return redirect(url_for('index'))
