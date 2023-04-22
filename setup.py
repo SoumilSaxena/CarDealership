@@ -145,6 +145,20 @@ def mark_sold():
             return render_template('cars.html', message="Unexpected error.")
     return render_template('mark_sold.html')
 
+@app.route('/change_role', methods=['GET', 'POST'])
+@login_required
+def change_role():
+    if request.method == 'POST':
+        level = session.get('level')
+        if level == 0 and 'Level' in request.form and 'EmpID' in request.form:
+            role = request.form['Level']
+            empid = request.form['EmpID']
+            cur.execute("UPDATE Employees SET Role_ID = %s WHERE Employee_ID = %s", (role, empid))
+            conn.commit()
+        return render_template('employees.html')
+
+    return render_template('change_role.html')
+
 @app.route('/menu')
 def menu():
     if request.method == 'POST':

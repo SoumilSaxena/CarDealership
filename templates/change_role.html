@@ -1,0 +1,23 @@
+<!-- exists as modal window -->
+<div id="roleModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change role of employee</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" class="form-horizontal" action="{{ url_for('change_role') }}">
+                    <div class="form-group">
+                        <input type="hidden" name="EmpID" value="{{ item[0] }}">
+                        <label for="Level" class="control-label mb-0">Role:</label>
+                        <input type="integer" class="form-control" name="Level" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
