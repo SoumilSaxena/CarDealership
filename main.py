@@ -260,17 +260,17 @@ def login():
 def menu_admin():
     print("\nPlease choose an option:")
     #add
-    print("1. Add a car to inventory")
-    print("2. Add a customer")
-    print("3. Add an employee")
-    print("4. Add a sale")
+    print("1. Add a car to inventory") #Done
+    print("2. Add a customer") #Done
+    print("3. Add an employee") #Done
+    print("4. Add a sale") #TODO
     #remove
     print("5. Remove a car from inventory")
     print("6. Remove a customer")
     print("7. Remove an employee")
     print("8. Remove a sale") #Should not be used
     #list
-    print("9. List cars")
+    print("9. List cars") #Done
     print("10. List customers")
     print("11. List employees")
     print("12. List sales")

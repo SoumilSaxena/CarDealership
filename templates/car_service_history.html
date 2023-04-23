@@ -1,0 +1,46 @@
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#serviceHistoryModal-{{ vin_number }}">
+    View Service History
+</button>
+<div class="modal fade" id="serviceHistoryModal-{{ vin_number }}" tabindex="-1" role="dialog" aria-labelledby="serviceHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="serviceHistoryModalLabel">Service History</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if customer_id in sales %}
+                    <p>VIN: {{sales[customer_id]['vin'] }}</p>
+                {% else %}
+                    <p>No sales data found for this customer</p>
+                {% endif %}
+                
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">VIN</th>
+                            <th scope="col">Service Date</th>
+                            <th scope="col">Service Type</th>
+                            <th scope="col">Service Description</th>
+                            <th scope="col">Service Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in service_history[vin] %}
+                            <tr>
+                                <td>{{ vin }}</td>
+                                <td>{{ service[0] }}</td>
+                                <td>{{ service[1] }}</td>
+                                <td>{{ service[2] }}</td>
+                                <td>{{ service[3] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
