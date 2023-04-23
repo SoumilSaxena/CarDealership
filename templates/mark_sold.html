@@ -80,3 +80,10 @@
         </div>
     </div>
 </div>
+<script>
+    function selectCustomer(customerId, customerName) {
+        // set the selected customer ID and name in the form
+        $('input[name="customer_id"]').val(customerId);
+        $('#selected_customer').text(customerName);
+    }
+</script>
