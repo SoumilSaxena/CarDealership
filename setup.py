@@ -78,7 +78,7 @@ def customers():
 def custsales():
     try:
         userid = session.get('user_id')
-        cur.execute("SELECT VIN, Selling_Price FROM Sales WHERE Customer_ID IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
+        cur.execute("SELECT Sales.VIN, Make, Color, Model, Year, Selling_Price FROM Sales INNER JOIN Stock ON Sales.VIN = Stock.VIN WHERE Customer_ID IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
     except psycopg2.Error as e:
         print(f"\nError loading Sales: {e}")
         return redirect(url_for('index'))
