@@ -25,7 +25,7 @@ CREATE TABLE Roles(
 );
 CREATE TABLE Employees(
 	Employee_ID serial PRIMARY KEY,
-	User_ID int REFERENCES Users,
+	User_ID serial REFERENCES Users,
 	Birthdate date,
 	Salary money,
 	First_Name varchar(255),
@@ -41,7 +41,7 @@ CREATE TABLE Service_History(
 );
 CREATE TABLE Customers(
 	Customer_ID serial PRIMARY KEY,
-	User_ID int REFERENCES Users,
+	User_ID serial REFERENCES Users,
 	First_Name varchar(255),
 	Last_Name varchar(255),
 	Email_Address varchar(255),
@@ -49,7 +49,7 @@ CREATE TABLE Customers(
 );
 CREATE TABLE Sales(
 	VIN char(17) PRIMARY KEY REFERENCES Stock,
-	Customer_ID int REFERENCES CUSTOMERS,
+	Customer_ID serial REFERENCES CUSTOMERS,
 	Selling_Price money,
 	Dealer int REFERENCES Employees,
 	Location int REFERENCES Locations

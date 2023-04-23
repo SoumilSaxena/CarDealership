@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Your Purchases</h1>
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">VIN</th>
+            <th scope="col">Selling Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{item[0]}}</td>
+            <td>{{item[1]}}</td>
+            <td>
+            <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#doServiceModal">Do Service</button>
+            <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#viewServiceModal">View Service History</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <style>
+        /* Style for hovering row */
+        tbody tr:hover {
+            background-color: #ddd;
+            cursor: pointer;
+        }
+    </style>
+</table>
+{% endblock %}
