@@ -8,6 +8,7 @@ import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
 conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=postgres user=postgres password=water123")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -82,6 +83,12 @@ def cars():
         locations = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars: {e}")
+        return render_template('cars.html', message="An unexpected error occurred.")
+    try:
+        cur.execute("SELECT location_id, city FROM locations")
+        locations = cur.fetchall()
+    except psycopg2.Error as e:
+        print(f"\nError loading location of cars: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
     return render_template('cars.html', data=data, locations=locations)
 
@@ -257,7 +264,8 @@ def add_employee():
         existing_user = cur.fetchone()
         if existing_user:
             return render_template('add_employee.html', message="Username already exists.")
-
+        if level != 1 or level != 2:
+            return render_template('add_employee.html', message="Invalid role id")
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
