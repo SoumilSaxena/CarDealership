@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import psycopg2
 from functools import wraps
 import hashlib
@@ -7,7 +7,6 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
 conn = psycopg2.connect("dbname=postgres user=postgres password=water123")
 cur = conn.cursor()
 
@@ -325,6 +324,25 @@ def login():
         message = "Incorrect username or password"
     return render_template('login.html', message=message)
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        # Validate the email
+        cur.execute("SELECT First_Name, Last_Name FROM Customers WHERE Email_Address = %s", (email,))
+        customer_info = cur.fetchone()
+        if not customer_info:
+            return render_template('forgot_password', message='Invalid email address')
+
+        # Send an email to the user
+        sender_email = 'your_email_address@example.com'
+        sender_password = 'your_email_password'
+        #Not implemented contact admin
+
+        return render_template('forgot_password.html', message='Email sending not implemented contact admin team for help')
+
+    return render_template('forgot_password.html')
 
 @app.route('/logout')
 def logout():
