@@ -7,7 +7,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -80,10 +80,12 @@ def cars():
         data = cur.fetchall()
         cur.execute("SELECT location_id, city FROM locations")
         locations = cur.fetchall()
+        cur.execute("SELECT * FROM customers")
+        custDATA = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
-    return render_template('cars.html', data=data, locations=locations)
+    return render_template('cars.html', data=data, locations=locations, custDATA = custDATA)
 
 @app.route('/car_filter')
 @login_required
@@ -121,10 +123,12 @@ def car_filter():
 
         cur.execute("SELECT location_id, city FROM locations")
         locations = cur.fetchall()
+        cur.execute("SELECT * FROM customers")
+        custDATA = cur.fetchall()
     except psycopg2.Error as e:
         print(f"\nError loading cars in: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
-    return render_template('cars.html', data=data, locations=locations)
+    return render_template('cars.html', data=data, locations=locations, custDATA=custDATA)
 
 @app.route('/mark_sold', methods=['GET', 'POST'])
 @login_required
@@ -143,7 +147,9 @@ def mark_sold():
         except psycopg2.Error as e:
             print(f"\nError: {e}")
             return render_template('cars.html', message="Unexpected error.")
-    return render_template('mark_sold.html')
+    cur.execute("SELECT * FROM customers")
+    custDATA = cur.fetchall()
+    return render_template('mark_sold.html', custDATA=custDATA)
 
 @app.route('/change_role', methods=['GET', 'POST'])
 @login_required

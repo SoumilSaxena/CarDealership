@@ -15,7 +15,13 @@
                     </div>
                     <div class="form-group">
                         <label for="selling_price" class="control-label mb-0">Customer:</label>
-                        <input type="text" class="form-control" name="customer_id" required>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="customer_id" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="modal"
+                                    data-target="#customerModal">Select Customer</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="location" class="control-label mb-0">Location of Deal:</label>
@@ -30,6 +36,46 @@
                         <button type="submit" class="btn btn-primary">Mark as Sold</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- customerModal -->
+<div id="customerModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg"> <!-- add modal-lg class here -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Customer</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email Address</th>
+                            <th>Phone Number</th>
+                            <th>SELECT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in custDATA %}
+                        <tr>
+                            <td>{{ customer[0] }}</td>
+                            <td>{{ customer[1] }}</td>
+                            <td>{{ customer[2] }}</td>
+                            <td>{{ customer[3] }}</td>
+                            <td>{{ customer[4] }}</td>
+                            <td><button class="btn btn-secondary" data-dismiss="modal"
+                                    onclick="selectCustomer('{{ customer[0] }}', '{{ customer[1] }} {{ customer[2] }}')">
+                                    <i class="fa fa-check"></i>
+                                </button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

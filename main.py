@@ -153,7 +153,7 @@ def create_account():
     level = input("Access level (0 for admin, 1 for dealer, 2 for engineer, 3 for customer): ")
     password = hash_password(password) #Password gets hashed
     # Check if username or password already exists
-    conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+    conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
     cur = conn.cursor()
     cur.execute(
         "SELECT user_id FROM Users WHERE username = %s OR password = %s", (username, password))
