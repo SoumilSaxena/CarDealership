@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import psycopg2
 from functools import wraps
 import hashlib
@@ -263,7 +263,8 @@ def add_employee():
         existing_user = cur.fetchone()
         if existing_user:
             return render_template('add_employee.html', message="Username already exists.")
-
+        if level != 1 or level != 2:
+            return render_template('add_employee.html', message="Invalid role id")
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
@@ -323,6 +324,25 @@ def login():
         message = "Incorrect username or password"
     return render_template('login.html', message=message)
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        # Validate the email
+        cur.execute("SELECT First_Name, Last_Name FROM Customers WHERE Email_Address = %s", (email,))
+        customer_info = cur.fetchone()
+        if not customer_info:
+            return render_template('forgot_password', message='Invalid email address')
+
+        # Send an email to the user
+        sender_email = 'your_email_address@example.com'
+        sender_password = 'your_email_password'
+        #Not implemented contact admin
+
+        return render_template('forgot_password.html', message='Email sending not implemented contact admin team for help')
+
+    return render_template('forgot_password.html')
 
 @app.route('/logout')
 def logout():
