@@ -35,9 +35,19 @@ CREATE TABLE Employees(
 	SET NULL
 );
 CREATE TABLE Service_History(
+	service_id serial PRIMARY KEY,
 	VIN char(17) REFERENCES Stock ON DELETE CASCADE,
-	Mechanic int REFERENCES Employees ON DELETE
-	SET NULL
+	custid int REFERENCES Users(User_ID) ON DELETE
+	SET NULL,
+		Mechanic int REFERENCES Employees(Employee_ID) ON DELETE
+	SET NULL,
+		service_date_requested date,
+		service_date_completed date,
+		service_type varchar(50),
+		service_request_description varchar(255),
+		service_description varchar(255),
+		service_cost money,
+		is_serviced boolean
 );
 CREATE TABLE Customers(
 	Customer_ID serial PRIMARY KEY,
@@ -58,7 +68,8 @@ INSERT INTO Roles(Role_ID, Description)
 VALUES(0, 'Admin'),
 	(1, 'Dealer'),
 	(2, 'Engineer'),
-	(3, 'Customer');
+	(3, 'Customer'),
+	(4, 'Mechanic');
 INSERT INTO Locations (Address, City)
 VALUES ('USF', 'Tampa');
 INSERT INTO Locations (Address, City)

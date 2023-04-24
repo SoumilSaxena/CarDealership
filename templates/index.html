@@ -27,6 +27,13 @@
     </div>
 </div>
 {% endif %}
+{% if session.level in [4] %}
+<div class="d-flex flex-wrap justify-content-center bg-secondary">
+    <div class="col-md-6 text-center">
+        <a href="/service" class="btn btn-primary btn-lg">View Service Requests</a>
+    </div>
+</div>
+{% endif %}
 
 {% if session.level in [3] %}
 <div class="d-flex flex-wrap justify-content-center bg-secondary">

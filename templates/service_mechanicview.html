@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Service History</h1>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Service ID</th>
+            <th scope="col">VIN</th>
+            <th scope="col">Make</th>
+            <th scope="col">Model</th>
+            <th scope="col">Year</th>
+            <th scope="col">Service Request Description</th>
+            <th scope="col">Service Date Requested</th>
+            <th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for index, row in enumerate(data) %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+            <td>{{ row[6] }}</td>
+            <td>
+                <button class="btn btn-outline-secondary" data-toggle="modal"
+                    data-target="#CompleteServiceModal{{ index }}">Complete Service</button>
+                {% with service_id=row[0] %}
+                {% include 'complete_service.html' %}
+                {% endwith %}
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

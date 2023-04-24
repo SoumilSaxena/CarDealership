@@ -1,0 +1,37 @@
+<!-- exists as modal window -->
+<div class="modal fade" id="CompleteServiceModal{{ index }}" tabindex="-1" role="dialog"
+    aria-labelledby="CompleteServiceModalLabel{{ index }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CompleteServiceModalLabel{{ index }}">Complete Service</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{{ url_for('complete_service') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="service_type">Service Type</label>
+                        <input type="hidden" name="service_id" value="{{ service_id }}">
+                        <input type="text" class="form-control" id="service_type" name="service_type" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="service_description">Service Description</label>
+                        <textarea class="form-control" id="service_description" name="service_description" rows="3"
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="service_cost">Service Cost</label>
+                        <input type="number" class="form-control" id="service_cost" name="service_cost" min="0"
+                            step="0.01" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Complete Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<!-- exists as modal window -->
+<div class="modal fade" id="RequestServiceModal{{ index }}" tabindex="-1" role="dialog"
+    aria-labelledby="RequestServiceModalLabel{{ index }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RequestServiceModalLabel{{ index }}">Request Service</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ url_for('request_service') }}" method="POST">
+                <div class="modal-body">
+                    <p>Describe your request.</p>
+                    <input type="hidden" name="vin" value="{{ vin }}">
+                    <textarea class="form-control" id="service_description_request" name="service_description_request"
+                        rows="3" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

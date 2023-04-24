@@ -14,7 +14,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for item in data %}
+        {% for index, item in enumerate(data) %}
         <tr>
             <td>{{item[0]}}</td>
             <td>{{item[1]}}</td>
@@ -23,11 +23,19 @@
             <td>{{item[4]}}</td>
             <td>{{item[5]}}</td>
             <td>
-            <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#doServiceModal">Do Service</button>
-            <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#viewServiceModal">View Service History</button>
+                <button class="btn btn-outline-secondary" data-toggle="modal"
+                    data-target="#RequestServiceModal{{ index }}">Request
+                    Service</button>
+                {% with vin=item[0] %}
+                {% include 'request_service.html' %}
+                {% endwith %}
+                <button class="btn btn-outline-secondary" data-toggle="modal"
+                    data-target="#viewServiceModal{{ index }}">View Service History</button>
+                <input type="hidden" name="VIN{{ index }}" value="{{ item[0] }}">
             </td>
         </tr>
         {% endfor %}
+
     </tbody>
     <style>
         /* Style for hovering row */

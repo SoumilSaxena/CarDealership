@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import datetime
 import psycopg2
 from functools import wraps
 import hashlib
@@ -8,7 +9,7 @@ import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
 #conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
-conn = psycopg2.connect("dbname=Car user=postgres password=Coolsoccer456")
+#conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -83,7 +84,7 @@ def custsales():
         print(f"\nError loading Sales: {e}")
         return redirect(url_for('index'))
     data = cur.fetchall()
-    return render_template('cust_sales.html', data=data)
+    return render_template('cust_sales.html', data=data,enumerate=enumerate)
 
 @app.route('/cars')
 @login_required
@@ -142,6 +143,64 @@ def car_filter():
         print(f"\nError loading cars in: {e}")
         return render_template('cars.html', message="An unexpected error occurred.")
     return render_template('cars.html', data=data, locations=locations, custDATA=custDATA)
+
+@app.route('/service')
+@login_required
+def service():
+    try:
+        cur.execute("""SELECT sh.service_id,sh.VIN,st.Make, st.Model, st.Year,sh.service_request_description, sh.service_date_requested 
+FROM Service_History sh
+JOIN Stock st ON sh.VIN = st.VIN
+WHERE sh.is_serviced = FALSE;""")
+
+    except psycopg2.Error as e:
+        print(f"\nError loading Services: {e}")
+        return redirect(url_for('index'))
+    data = cur.fetchall()
+    return render_template('service_mechanicview.html', data=data, enumerate = enumerate)
+
+
+@app.route('/request_service', methods=['GET', 'POST'])
+@login_required
+def request_service():
+    if request.method == 'POST':
+        vin = request.form['vin']
+        service_description_request = request.form['service_description_request']
+        userid = session.get('user_id')
+        cur.execute(f"Select Customer_ID FROM Customers WHERE User_ID = {userid}")
+        custID = cur.fetchall()[0]
+        from datetime import date
+        cur.execute(
+            "INSERT INTO Service_History (VIN, custid, service_request_description,service_date_requested, is_serviced) VALUES (%s, %s,%s, %s, %s)",
+            (vin, custID, service_description_request, date.today(), False)
+        )
+        conn.commit()
+        flash('Service request submitted successfully', 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('request_service.html',vin=request.form.get('VIN'))
+
+@app.route('/complete_service', methods=['POST'])
+@login_required
+def complete_service():
+    if request.method == 'POST':
+        service_id = request.form.get('service_id')
+        service_type = request.form.get('service_type')
+        service_description = request.form.get('service_description')
+        service_cost = request.form.get('service_cost')
+        userid = session.get('user_id')
+        cur.execute(f"SELECT employee_ID FROM employees WHERE User_ID = {userid}")
+        empID = cur.fetchone()[0]
+        from datetime import date
+        
+        cur.execute("""UPDATE service_history SET Mechanic = %s, service_date_completed = %s, service_type = %s, service_description = %s, service_cost = %s, is_serviced = TRUE WHERE service_id = %s""", (empID, date.today(), service_type, service_description, service_cost, service_id))
+        conn.commit()
+        flash('Service Completed Successfully', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('complete_service.html',service_id=request.form.get('service_id'))
+
+
 
 @app.route('/mark_sold', methods=['GET', 'POST'])
 @login_required
@@ -276,8 +335,6 @@ def add_employee():
         existing_user = cur.fetchone()
         if existing_user:
             return render_template('add_employee.html', message="Username already exists.")
-        if level != 1 or level != 2:
-            return render_template('add_employee.html', message="Invalid role id")
         try:
             cur.execute("INSERT INTO Users (username, password, level) VALUES (%s, %s, %s) RETURNING user_id",
                         (username, password, level))
@@ -316,7 +373,7 @@ def login():
         if cur_user:
             stored_database_password = cur_user[1]
             if verify_password(stored_database_password, password):
-                if (cur_user[2] < 3):
+                if (cur_user[2] < 3 or cur_user[2] == 4):
                     try:
                         cur.execute("SELECT employee_id FROM employees WHERE user_id = %s", (cur_user[0],))
                         session['employee_id'] = cur.fetchone()[0]
