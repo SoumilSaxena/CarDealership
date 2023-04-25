@@ -37,7 +37,7 @@ CREATE TABLE Employees(
 CREATE TABLE Service_History(
 	service_id serial PRIMARY KEY,
 	VIN char(17) REFERENCES Stock ON DELETE CASCADE,
-	custid int REFERENCES Users(User_ID) ON DELETE
+	custid int REFERENCES Customer(customer_id) ON DELETE
 	SET NULL,
 		Mechanic int REFERENCES Employees(Employee_ID) ON DELETE
 	SET NULL,
