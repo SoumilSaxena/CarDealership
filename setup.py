@@ -8,8 +8,8 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-#conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
-conn = psycopg2.connect("dbname=Car user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+#conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -98,12 +98,12 @@ def custservice():
     if request.method == 'GET':
         try:
             userid = session.get('user_id')
-            cur.execute("SELECT * FROM CustServView WHERE custid IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
+            cur.execute("SELECT * FROM custservview WHERE custid IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
         except psycopg2.Error as e:
             print(f"\nError loading history: {e}")
             return redirect(url_for('index'))
         data = cur.fetchall()
-        return render_template('cust_service.html', data = data, enumerate = enumerate)
+    return render_template('cust_service.html', data = data, enumerate = enumerate)
 
 @app.route('/cars')
 @login_required
