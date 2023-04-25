@@ -284,38 +284,6 @@ def change_role():
 
     return render_template('change_role.html')
 
-@app.route('/menu')
-def menu():
-    if request.method == 'POST':
-        option = request.form['option']
-        if option == '1':
-            return redirect(url_for('add_car'))
-            # print("1. Add a car to inventory") #dealer
-        elif option == '2':
-            return redirect(url_for('add_customer'))
-            # print("2. Add a customer") #dealer
-        elif option == '3':
-            return redirect(url_for('add_employee'))
-            # print("3. Add an employee") #admin
-        elif option == '4':
-            return redirect(url_for('add_sale'))
-            # print("4. Record a sale") #dealer
-        elif option == '5':
-            return redirect(url_for('main'))
-            # print("5. Log out")
-    else:
-        options = [
-            {'text': '1. Add a car to inventory', 'url': url_for('add_car')},
-            {'text': '2. Add a customer', 'url': url_for('add_customer')},
-            {'text': '3. Add an employee', 'url': url_for('add_employee')},
-            {'text': '4. Record a sale', 'url': url_for('add_sale')},
-            {'text': '5. Log out', 'url': url_for('main')}
-        ]
-        return render_template('menu.htl', options=options)
-    data = cur.fetchall()
-    return render_template('cars.html', data=data)
-
-
 @app.route('/add_sale', methods=['GET', 'POST'])
 @login_required
 def add_sale():
@@ -464,6 +432,17 @@ def forgot_password():
         return render_template('forgot_password.html', message='Email sending not implemented contact admin team for help')
 
     return render_template('forgot_password.html')
+
+@app.route('/sales')
+@login_required
+def sales():
+    try:
+        cur.execute("select s.vin, c.first_name || ' ' || c.last_name as customer, s.customer_id, s.selling_price, e.last_name, l.city from sales s natural join customers c inner join employees e on s.dealer = e.employee_id natural join locations l")
+        data = cur.fetchall()
+    except psycopg2.Error as e:
+        print(f"\nError loading sales: {e}")
+        return render_template('sales.html', message="An unexpected error occurred.")
+    return render_template('sales.html', data=data)
 
 @app.route('/logout')
 def logout():
