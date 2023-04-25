@@ -65,11 +65,23 @@ CREATE TABLE Sales(
 	Location int REFERENCES Locations
 );
 --customer view for service done
-CREATE VIEW CustServView AS SELECT vin, custid, 
-service_date_requested, service_date_completed, 
-service_type, service_request_description, service_cost, 
-is_serviced, concat(first_name,' ', last_name) "mechName" 
-FROM service_history INNER JOIN employees ON service_history.mechanic = employees.employee_id;
+CREATE VIEW CustServView AS
+SELECT sh.vin,
+	sh.custid,
+	sh.service_date_requested,
+	sh.service_date_completed,
+	sh.service_type,
+	sh.service_request_description,
+	sh.service_cost,
+	sh.is_serviced,
+	concat(e.first_name, ' ', e.last_name) AS "mechName",
+	s.make,
+	s.model,
+	s.year
+FROM service_history sh
+	INNER JOIN employees e ON sh.mechanic = e.employee_id
+	INNER JOIN stock s ON sh.vin = s.vin;
+--roles insertion
 INSERT INTO Roles(Role_ID, Description)
 VALUES(0, 'Admin'),
 	(1, 'Dealer'),
