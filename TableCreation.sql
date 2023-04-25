@@ -81,6 +81,15 @@ SELECT sh.vin,
 FROM service_history sh
 	INNER JOIN employees e ON sh.mechanic = e.employee_id
 	INNER JOIN stock s ON sh.vin = s.vin;
+
+--employee view for all services
+CREATE VIEW EmpServView AS 
+SELECT sh.vin, sh.custid, sh.service_date_requested, sh.service_date_completed, 
+sh.service_type, sh.service_request_description, sh.mechanic, sh.service_cost, sh.is_serviced,
+s.make, s.model, s.year
+FROM service_history sh 
+INNER JOIN stock s ON sh.vin = s.vin;
+
 --roles insertion
 INSERT INTO Roles(Role_ID, Description)
 VALUES(0, 'Admin'),
