@@ -72,7 +72,13 @@ def customers():
         print(f"\nError occured: {e}")
         return redirect(url_for('index'))
     cust = cur.fetchall()
-    return render_template('customers.html', data=cust)
+    try:
+        cur.execute("SELECT VIN, service_date_requested, service_date_completed, service_type, service_request_description, service_cost, is_serviced FROM Service_History")
+    except psycopg2.Error as e:
+        print(f"\nError occured: {e}")
+        return redirect(url_for('index'))
+    service = cur.fetchall()
+    return render_template('customers.html', data=cust, service=service)
 
 @app.route('/custsales')
 @login_required
