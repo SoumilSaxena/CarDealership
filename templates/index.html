@@ -5,18 +5,18 @@
 <p class="text-center">This is the homepage of the best Car Enterprise.</p>
 
 {% if session.level in [1] %}
-<div class="d-flex flex-wrap justify-content-center"></div>
-<div class="col-md-6 text-center mb-3">
-    <a href="/customers" class="btn btn-primary btn-lg btn-block">List the customers</a>
-</div>
+<div class="d-flex flex-wrap justify-content-center">
+    <div class="col-md-6 text-center mb-3">
+        <a href="/customers" class="btn btn-primary btn-lg btn-block">List the customers</a>
+    </div>
 
-<div class="col-md-6 text-center mb-3">
-    <a href="/empservice" class="btn btn-primary btn-lg btn-block">View Service History</a>
-</div>
+    <div class="col-md-6 text-center mb-3">
+        <a href="/empservice" class="btn btn-primary btn-lg btn-block">View Service History</a>
+    </div>
 </div>
 {% endif %}
 {% if session.level in [4] %}
-<div class="d-flex flex-wrap justify-content-center"></div>
+<div class="d-flex flex-wrap justify-content-center">
 <div class="col-md-6 text-center mb-3">
     <a href="/customers" class="btn btn-primary btn-lg btn-block">List the customers</a>
 </div>
@@ -49,7 +49,7 @@
     </div>
 
     <div class="col-md-6 text-center mb-3">
-        <a href="/add_car" class="btn btn-primary btn-lg btn-block">Add a Car</a>
+        <a href="/cars" class="btn btn-primary btn-lg btn-block">List Car Stock</a>
     </div>
 
     <div class="col-md-6 text-center mb-3">

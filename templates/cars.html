@@ -7,7 +7,7 @@
     <a class="text-primary" data-toggle="collapse" data-target="#filters">[Filters]</a>
 </div>
 
-{% if session.level == 0 %}
+{% if session.level in [0,1] %}
 {% include 'add_car.html' %}
 {% endif %}
 
