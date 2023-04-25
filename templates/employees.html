@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Employees</h1>
-<table class="table">
+<table class="table table-hover">
     <thead class="thead-light">
         <tr>
             <th scope="col">Employee ID</th>
@@ -12,7 +12,8 @@
             <th scope="col">First Name</th>
             <th scope="col">Last Name</th>
             <th scope="col">Address</th>
-            <th scope="col">Role ID</th>
+            <th scope="col">Role</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -28,23 +29,13 @@
             <td>{{item[7]}}</td>
             <td>
             {% if session.level == 0 %}
-                <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#roleModal">Change
-                    Role</button>
-                {% with EmpID=item[0] %}
+                <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#roleModal{{ loop.index }}">Change Role</button>
                 {% include 'change_role.html' %}
-                {% endwith %}
             {% endif %}
 
             </td>
         </tr>
         {% endfor %}
     </tbody>
-    <style>
-        /* Style for hovering row */
-        tbody tr:hover {
-            background-color: #ddd;
-            cursor: pointer;
-        }
-    </style>
 </table>
 {% endblock %}

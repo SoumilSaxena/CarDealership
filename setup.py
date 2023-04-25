@@ -8,7 +8,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=postgres user=postgres password=water123")
+conn = psycopg2.connect("dbname=postgres user=postgres password=")
 #conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
@@ -57,7 +57,7 @@ def index():
 @app.route('/employees')
 def employees():
     try:
-        cur.execute("SELECT * FROM Employees")
+        cur.execute("SELECT employee_id, user_id, birthdate, salary, first_name, last_name, address, description FROM Employees NATURAL JOIN Roles")
     except psycopg2.Error as e:
         print(f"\nError occured: {e}")
         return redirect(url_for('index'))
@@ -116,6 +116,7 @@ def empservice():
             return redirect(url_for('index'))
         data = cur.fetchall()
         return render_template('emp_service.html', data = data, enumerate = enumerate)
+
 @app.route('/cars')
 @login_required
 def cars():
@@ -229,8 +230,6 @@ def complete_service():
         return redirect(url_for('index'))
 
     return render_template('complete_service.html',service_id=request.form.get('service_id'))
-
-
 
 @app.route('/mark_sold', methods=['GET', 'POST'])
 @login_required
