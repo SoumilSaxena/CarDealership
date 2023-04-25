@@ -1,5 +1,5 @@
 ﻿<!-- exists as modal window -->
-<div id="markSoldModal" class="modal fade" tabindex="-1" role="dialog">
+<div id="markSoldModal{{ loop.index }}" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('mark_sold') }}">
-                    <input type="hidden" name="vin" value="{{ item[0] }}">
+                    <input type="hidden" name="vin" value="{{ item[0] }}" />
                     <div class="form-group">
                         <label for="selling_price" class="control-label mb-0">Final Selling Price:</label>
                         <input type="text" class="form-control" name="selling_price" required>

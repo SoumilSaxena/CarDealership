@@ -59,7 +59,7 @@
 
 <div class="err-msg">{{ message }}</div>
 
-<table class="table mt-3">
+<table class="table mt-3 table-hover">
     <thead class="thead-light">
         <tr>
             <th scope="col">VIN</th>
@@ -84,28 +84,17 @@
                 {% if item[6] == True %}
                 <button class="btn btn-outline-secondary" disabled>Sold</button>
                 {% else %}
-                {% if session.level < 3 %} <button class="btn btn-outline-secondary" data-toggle="modal"
-                    data-target="#markSoldModal">Mark Sold</button>
-                    <input type="hidden" name="VIN" value="{{ item[0] }}">
-                    {% include 'mark_sold.html' %}
-                    {% else %}
-                    <button class="btn btn-outline-secondary" data-toggle="modal"
-                        data-target="#buyCarModal">Buy</button>
-                    {% endif %}
-                    {% endif %}
+                {% if session.level < 3 %}
+                <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#markSoldModal{{ loop.index }}">Mark Sold</button>
+                {% include 'mark_sold.html' %}
+                {% else %}
+                <button class="btn btn-outline-secondary" data-toggle="modal"data-target="#buyCarModal">Buy</button>
+                {% endif %}
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
-
-
-<style>
-  /* Style for hovering row */
-  tbody tr:hover {
-    background-color: #ddd;
-    cursor: pointer;
-  }
-</style>
-
 </table>
+
 {% endblock %}
