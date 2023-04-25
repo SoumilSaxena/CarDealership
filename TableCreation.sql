@@ -25,7 +25,7 @@ CREATE TABLE Roles(
 );
 CREATE TABLE Employees(
 	Employee_ID serial PRIMARY KEY,
-	User_ID serial REFERENCES Users,
+	User_ID Integer REFERENCES Users,
 	Birthdate date,
 	Salary money,
 	First_Name varchar(255),
@@ -59,11 +59,17 @@ CREATE TABLE Customers(
 );
 CREATE TABLE Sales(
 	VIN char(17) PRIMARY KEY REFERENCES Stock,
-	Customer_ID serial REFERENCES CUSTOMERS,
+	Customer_ID Integer REFERENCES CUSTOMERS,
 	Selling_Price money,
 	Dealer int REFERENCES Employees,
 	Location int REFERENCES Locations
 );
+--customer view for service done
+CREATE VIEW CustServView AS SELECT vin, custid, 
+service_date_requested, service_date_completed, 
+service_type, service_request_description, service_cost, 
+is_serviced, concat(first_name,' ', last_name) "mechName" 
+FROM service_history INNER JOIN employees ON service_history.mechanic = employees.employee_id;
 INSERT INTO Roles(Role_ID, Description)
 VALUES(0, 'Admin'),
 	(1, 'Dealer'),

@@ -29,9 +29,6 @@
                 {% with vin=item[0] %}
                 {% include 'request_service.html' %}
                 {% endwith %}
-                <button class="btn btn-outline-secondary" data-toggle="modal"
-                    data-target="#viewServiceModal{{ index }}">View Service History</button>
-                <input type="hidden" name="VIN{{ index }}" value="{{ item[0] }}">
             </td>
         </tr>
         {% endfor %}
