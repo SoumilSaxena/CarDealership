@@ -9,7 +9,7 @@ import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
 #conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
-conn = psycopg2.connect("dbname=Car user=postgres password=")
+conn = psycopg2.connect("dbname=postgres user=postgres password=")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -241,6 +241,24 @@ def mark_sold():
     cur.execute("SELECT * FROM customers")
     custDATA = cur.fetchall()
     return render_template('mark_sold.html', custDATA=custDATA)
+
+@app.route('/buy_car', methods=['GET', 'POST'])
+@login_required
+def buy_car():
+    if request.method == 'POST':
+        vin = request.form['vin']
+        customer = request.form['customer_id']
+        price = request.form['selling_price']
+        location = request.form['location'] if request.form['location'] != "Choose location" else None
+        try:
+            cur.execute("INSERT INTO sales(vin,customer_id,selling_price,dealer,location) VALUES(%s, %s, %s, %s, %s)",
+                        (vin,customer,price,None,location))
+            conn.commit()
+            return redirect(url_for('cars'))
+        except psycopg2.Error as e:
+            print(f"\nError: {e}")
+            return render_template('cars.html', message="Unexpected error.")
+    return render_template('buy_car.html')
 
 @app.route('/change_role', methods=['GET', 'POST'])
 @login_required
