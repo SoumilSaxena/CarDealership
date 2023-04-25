@@ -8,8 +8,8 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-#conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
-conn = psycopg2.connect("dbname=Car user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+#conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
 def hash_password(password):
@@ -98,12 +98,12 @@ def custservice():
     if request.method == 'GET':
         try:
             userid = session.get('user_id')
-            cur.execute("SELECT * FROM CustServView WHERE custid IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
+            cur.execute("SELECT * FROM custservview WHERE custid IN (Select Customer_ID FROM Customers WHERE User_ID = %s)", (userid,))
         except psycopg2.Error as e:
             print(f"\nError loading history: {e}")
             return redirect(url_for('index'))
         data = cur.fetchall()
-        return render_template('cust_service.html', data = data, enumerate = enumerate)
+    return render_template('cust_service.html', data = data, enumerate = enumerate)
 
 @app.route('/empservice', methods=['GET', 'POST'])
 @login_required
@@ -252,6 +252,24 @@ def mark_sold():
     cur.execute("SELECT * FROM customers")
     custDATA = cur.fetchall()
     return render_template('mark_sold.html', custDATA=custDATA)
+
+@app.route('/buy_car', methods=['GET', 'POST'])
+@login_required
+def buy_car():
+    if request.method == 'POST':
+        vin = request.form['vin']
+        customer = session['customer_id']
+        price = request.form['selling_price']
+        location = request.form['location'] if request.form['location'] != "Choose location" else None
+        try:
+            cur.execute("INSERT INTO sales(vin,customer_id,selling_price,dealer,location) VALUES(%s, %s, %s, %s, %s)",
+                        (vin,customer,price,None,location))
+            conn.commit()
+            return redirect(url_for('cars'))
+        except psycopg2.Error as e:
+            print(f"\nError: {e}")
+            return render_template('cars.html', message="Unexpected error.")
+    return render_template('buy_car.html')
 
 @app.route('/change_role', methods=['GET', 'POST'])
 @login_required

@@ -1,0 +1,31 @@
+﻿<!-- exists as modal window -->
+<div id="buyCarModal{{ loop.index }}" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Purchase Car</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('buy_car') }}">
+                    <input type="hidden" name="vin" value="{{ item[0] }}" />
+                    <input type="hidden" name="selling_price" value="{{ item[5] }}" />
+                    <div class="form-group">
+                        <label for="location" class="control-label mb-0">Pickup Location:</label>
+                        <select class="form-control" name="location">
+                            <option selected>Choose location</option>
+                            {% for location in locations %}
+                            <option value="{{ location[0] }}">{{ location[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <h5>You are about to purchase this car at its <b>asking price:</b> {{ item[5] }}.</h5>
+                    <p>Click "Continue" to enter your payment details.</p>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
