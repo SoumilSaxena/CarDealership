@@ -22,14 +22,16 @@
                     <thead class="thead-light">
                         <tr>
                             <th scope="col">VIN</th>
-                            <th scope="col">Service Date</th>
+                            <th scope="col">Service Date Requested</th>
+                            <th scope="col">Service Date Completed</th>
                             <th scope="col">Service Type</th>
                             <th scope="col">Service Description</th>
                             <th scope="col">Service Cost</th>
+                            <th scope="col">is_serviced</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for service in service_history[vin] %}
+                        {% for service in service%}
                             <tr>
                                 <td>{{ vin }}</td>
                                 <td>{{ service[0] }}</td>
