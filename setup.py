@@ -247,7 +247,7 @@ def mark_sold():
 def buy_car():
     if request.method == 'POST':
         vin = request.form['vin']
-        customer = request.form['customer_id']
+        customer = session['customer_id']
         price = request.form['selling_price']
         location = request.form['location'] if request.form['location'] != "Choose location" else None
         try:
