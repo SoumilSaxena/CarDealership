@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="text-center">Welcome to The best Car Enterprise system ever</h1>
 <p class="text-center">This is the homepage of the best Car Enterprise.</p>
-{% if session.level in [0, 1, 2] %}
+{% if session.level in [2] %}
 <div class="d-flex flex-wrap justify-content-center bg-secondary">
     <div class="col-md-6 text-center">
         <a href="/add_car" class="btn btn-primary btn-lg">Add a Car</a>
@@ -13,6 +13,21 @@
         <a href="/customers" class="btn btn-primary btn-lg">List the customers</a>
     </div>
 
+    <div class="col-md-6 text-center">
+        <a href="/empservice" class="btn btn-primary btn-lg">View Service History</a>
+    </div>
+</div>
+{% endif %}
+
+{% if session.level in [1, 4] %}
+<div class="d-flex flex-wrap justify-content-center bg-secondary"></div>
+    <div class="col-md-6 text-center">
+        <a href="/customers" class="btn btn-primary btn-lg">List the customers</a>
+    </div>
+
+    <div class="col-md-6 text-center">
+        <a href="/empservice" class="btn btn-primary btn-lg">View Service History</a>
+    </div>
 </div>
 {% endif %}
 
@@ -25,13 +40,32 @@
     <div class="col-md-6 text-center">
         <a href="/employees" class="btn btn-primary btn-lg">List the employees</a>
     </div>
+
+    <div class="col-md-6 text-center">
+        <a href="/service" class="btn btn-primary btn-lg">View Service Requests</a>
+    </div>
+
+    <div class="col-md-6 text-center">
+        <a href="/customers" class="btn btn-primary btn-lg">List the customers</a>
+    </div>
+
+    <div class="col-md-6 text-center">
+        <a href="/add_car" class="btn btn-primary btn-lg">Add a Car</a>
+    </div>
+
+    <div class="col-md-6 text-center">
+        <a href="/empservice" class="btn btn-primary btn-lg">View Service History</a>
+    </div>
 </div>
 {% endif %}
+
 {% if session.level in [4] %}
 <div class="d-flex flex-wrap justify-content-center bg-secondary">
     <div class="col-md-6 text-center">
         <a href="/service" class="btn btn-primary btn-lg">View Service Requests</a>
     </div>
+
+
 </div>
 {% endif %}
 

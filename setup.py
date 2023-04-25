@@ -105,6 +105,17 @@ def custservice():
         data = cur.fetchall()
         return render_template('cust_service.html', data = data, enumerate = enumerate)
 
+@app.route('/empservice', methods=['GET', 'POST'])
+@login_required
+def empservice():
+    if request.method == 'GET':
+        try:
+            cur.execute("SELECT * FROM EmpServView")
+        except psycopg2.Error as e:
+            print(f"\nError loading history: {e}")
+            return redirect(url_for('index'))
+        data = cur.fetchall()
+        return render_template('emp_service.html', data = data, enumerate = enumerate)
 @app.route('/cars')
 @login_required
 def cars():
@@ -186,7 +197,7 @@ def request_service():
         vin = request.form['vin']
         service_description_request = request.form['service_description_request']
         userid = session.get('user_id')
-        cur.execute(f"Select Customer_ID FROM Customers WHERE User_ID = {userid}")
+        cur.execute("Select Customer_ID FROM Customers WHERE User_ID = %s" (userid,))
         custID = cur.fetchall()[0]
         from datetime import date
         cur.execute(
@@ -208,7 +219,7 @@ def complete_service():
         service_description = request.form.get('service_description')
         service_cost = request.form.get('service_cost')
         userid = session.get('user_id')
-        cur.execute(f"SELECT employee_ID FROM employees WHERE User_ID = {userid}")
+        cur.execute("SELECT employee_ID FROM employees WHERE User_ID = %s" (userid,))
         empID = cur.fetchone()[0]
         from datetime import date
         
