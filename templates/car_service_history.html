@@ -1,9 +1,10 @@
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#serviceHistoryModal-{{ vin_number }}">
+{% if customer_id %}
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#serviceHistoryModal-{{ customer_id }}">
     View Service History
 </button>
-<div class="modal fade" id="serviceHistoryModal-{{ vin_number }}" tabindex="-1" role="dialog" aria-labelledby="serviceHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="serviceHistoryModal-{{ customer_id }}" tabindex="-1" role="dialog"
+    aria-labelledby="serviceHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="serviceHistoryModalLabel">Service History</h5>
@@ -12,33 +13,31 @@
                 </button>
             </div>
             <div class="modal-body">
-                {% if customer_id in sales %}
-                    <p>VIN: {{sales[customer_id]['vin'] }}</p>
-                {% else %}
-                    <p>No sales data found for this customer</p>
-                {% endif %}
-                
-                <table class="table">
+                <table class="table table-responsive">
                     <thead class="thead-light">
                         <tr>
                             <th scope="col">VIN</th>
                             <th scope="col">Service Date Requested</th>
                             <th scope="col">Service Date Completed</th>
                             <th scope="col">Service Type</th>
+                            <th scope="col">Service Request</th>
                             <th scope="col">Service Description</th>
                             <th scope="col">Service Cost</th>
                             <th scope="col">is_serviced</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for service in service%}
-                            <tr>
-                                <td>{{ vin }}</td>
-                                <td>{{ service[0] }}</td>
-                                <td>{{ service[1] }}</td>
-                                <td>{{ service[2] }}</td>
-                                <td>{{ service[3] }}</td>
-                            </tr>
+                        {% for row in services %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                            <td>{{ row[5] }}</td>
+                            <td>{{ row[6] }}</td>
+                            <td>{{ row[7] }}</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -46,3 +45,4 @@
         </div>
     </div>
 </div>
+{% endif %}

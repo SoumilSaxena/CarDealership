@@ -8,7 +8,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=")
+conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
 #conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
@@ -73,12 +73,12 @@ def customers():
         return redirect(url_for('index'))
     cust = cur.fetchall()
     try:
-        cur.execute("SELECT VIN, service_date_requested, service_date_completed, service_type, service_request_description, service_cost, is_serviced FROM Service_History")
+        cur.execute("SELECT VIN, service_date_requested, service_date_completed, service_type, service_request_description,service_description, service_cost, is_serviced FROM Service_History")
     except psycopg2.Error as e:
         print(f"\nError occured: {e}")
         return redirect(url_for('index'))
-    service = cur.fetchall()
-    return render_template('customers.html', data=cust, service=service)
+    services = cur.fetchall()
+    return render_template('customers.html', data=cust, services=services)
 
 @app.route('/custsales')
 @login_required
@@ -197,7 +197,7 @@ def request_service():
         vin = request.form['vin']
         service_description_request = request.form['service_description_request']
         userid = session.get('user_id')
-        cur.execute("Select Customer_ID FROM Customers WHERE User_ID = %s" (userid,))
+        cur.execute("Select Customer_ID FROM Customers WHERE User_ID = %s", (userid,))
         custID = cur.fetchall()[0]
         from datetime import date
         cur.execute(
@@ -219,7 +219,7 @@ def complete_service():
         service_description = request.form.get('service_description')
         service_cost = request.form.get('service_cost')
         userid = session.get('user_id')
-        cur.execute("SELECT employee_ID FROM employees WHERE User_ID = %s" (userid,))
+        cur.execute("SELECT employee_ID FROM employees WHERE User_ID = %s", (userid,))
         empID = cur.fetchone()[0]
         from datetime import date
         
