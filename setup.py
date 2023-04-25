@@ -278,8 +278,12 @@ def change_role():
         if level == 0 and 'Level' in request.form and 'EmpID' in request.form:
             role = request.form['Level']
             empid = request.form['EmpID']
-            cur.execute("UPDATE Employees SET Role_ID = %s WHERE Employee_ID = %s", (role, empid))
-            conn.commit()
+            try:
+                cur.execute("UPDATE Employees SET Role_ID = %s WHERE Employee_ID = %s", (role, empid))
+                conn.commit()
+            except psycopg2.Error as e:
+                print(f"\nError: {e}")
+                return render_template('change_role.html', message="Unexpected error.")
         return render_template('employees.html')
 
     return render_template('change_role.html')
