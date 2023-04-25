@@ -8,7 +8,7 @@ import os
 import re
 app = Flask(__name__)
 app.secret_key = "abc123"  # replace before project submission
-conn = psycopg2.connect("dbname=dbdesign user=postgres password=Soumil008")
+conn = psycopg2.connect("dbname=postgres user=postgres password=water123")
 #conn = psycopg2.connect("dbname=Car user=postgres password=")
 cur = conn.cursor()
 
@@ -448,7 +448,11 @@ def forgot_password():
         email = request.form['email']
 
         # Validate the email
-        cur.execute("SELECT First_Name, Last_Name FROM Customers WHERE Email_Address = %s", (email,))
+        try:
+            cur.execute("SELECT First_Name, Last_Name FROM Customers WHERE Email_Address = %s", (email,))
+        except psycopg2.Error as e:
+                print(f"\nError: {e}")
+                return render_template('login.html', message="Unexpected error.")
         customer_info = cur.fetchone()
         if not customer_info:
             return render_template('forgot_password', message='Invalid email address')
