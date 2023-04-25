@@ -94,7 +94,6 @@ INNER JOIN stock s ON sh.vin = s.vin;
 INSERT INTO Roles(Role_ID, Description)
 VALUES(0, 'Admin'),
 	(1, 'Dealer'),
-	(2, 'Engineer'),
 	(3, 'Customer'),
 	(4, 'Mechanic');
 INSERT INTO Locations (Address, City)
